@@ -1,22 +1,46 @@
 import argparse
-import yaml
 import json
 import os
+
+import numpy as np
 import torch
 import torch.nn as nn
-import numpy as np
+import yaml
 from datasets import Dataset
+from sklearn.metrics import classification_report
 from transformers import (
-    AutoTokenizer, AutoModelForSequenceClassification,
-    TrainingArguments, Trainer
+    AutoModelForSequenceClassification,
+    AutoTokenizer,
+    Trainer,
+    TrainingArguments,
 )
 import evaluate
-from sklearn.metrics import classification_report
+
 from data_prep import get_splits
+
+# Resolve the project root relative to THIS file's location, not the
+# current working directory. This makes the script runnable from anywhere:
+#   python train.py ...
+#   python src/train.py ...
+#   cd src && python train.py ...
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+
+DEFAULT_CONFIG = os.path.join(PROJECT_ROOT, "configs", "training_config.yaml")
+
+
+def resolve_path(path):
+    """Resolve a path from the config file relative to PROJECT_ROOT,
+    unless it's already absolute."""
+    if os.path.isabs(path):
+        return path
+    return os.path.join(PROJECT_ROOT, path)
+
 
 def to_hf_dataset(d):
     d = d.rename(columns={"Content": "text", "Label": "label"})
     return Dataset.from_pandas(d[["text", "label"]], preserve_index=False)
+
 
 def main(model_key, config_path, push_to_hub):
     with open(config_path) as f:
@@ -26,18 +50,25 @@ def main(model_key, config_path, push_to_hub):
     train_cfg = cfg["training"]
     data_cfg = cfg["data"]
 
-    train_df, val_df, test_df = get_splits(
-        data_cfg["raw_path"], data_cfg["processed_dir"], data_cfg["seed"]
-    )
+    raw_path = resolve_path(data_cfg["raw_path"])
+    processed_dir = resolve_path(data_cfg["processed_dir"])
+    output_dir = resolve_path(model_cfg["output_dir"])
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    train_df, val_df, test_df = get_splits(raw_path, processed_dir, data_cfg["seed"])
 
     model_name = model_cfg["hf_name"]
-    output_dir = model_cfg["output_dir"]
-    os.makedirs(output_dir, exist_ok=True)
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     def tokenize_fn(batch):
-        return tokenizer(batch["text"], truncation=True, padding="max_length", max_length=train_cfg["max_length"])
+        return tokenizer(
+            batch["text"],
+            truncation=True,
+            padding="max_length",
+            max_length=train_cfg["max_length"],
+        )
 
     train_ds = to_hf_dataset(train_df).map(tokenize_fn, batched=True)
     val_ds = to_hf_dataset(val_df).map(tokenize_fn, batched=True)
@@ -47,7 +78,9 @@ def main(model_key, config_path, push_to_hub):
 
     class_counts = train_df["Label"].value_counts().sort_index()
     total = class_counts.sum()
-    class_weights = torch.tensor([total / (2 * c) for c in class_counts], dtype=torch.float)
+    class_weights = torch.tensor(
+        [total / (2 * c) for c in class_counts], dtype=torch.float
+    )
 
     f1_metric = evaluate.load("f1")
     acc_metric = evaluate.load("accuracy")
@@ -70,7 +103,7 @@ def main(model_key, config_path, push_to_hub):
             return (loss, outputs) if return_outputs else loss
 
     args = TrainingArguments(
-        output_dir=f"{output_dir}/checkpoints",
+        output_dir=os.path.join(output_dir, "checkpoints"),
         eval_strategy="epoch",
         save_strategy="epoch",
         learning_rate=float(train_cfg["learning_rate"]),
@@ -85,8 +118,10 @@ def main(model_key, config_path, push_to_hub):
     )
 
     trainer = WeightedTrainer(
-        model=model, args=args,
-        train_dataset=train_ds, eval_dataset=val_ds,
+        model=model,
+        args=args,
+        train_dataset=train_ds,
+        eval_dataset=val_ds,
         compute_metrics=compute_metrics,
     )
 
@@ -94,14 +129,16 @@ def main(model_key, config_path, push_to_hub):
 
     preds = trainer.predict(test_ds)
     y_pred = np.argmax(preds.predictions, axis=-1)
-    report = classification_report(test_df["Label"], y_pred, target_names=["Not Suspicious", "Suspicious"])
+    report = classification_report(
+        test_df["Label"], y_pred, target_names=["Not Suspicious", "Suspicious"]
+    )
     print(report)
 
-    with open(f"{output_dir}/test_report.txt", "w") as f:
+    with open(os.path.join(output_dir, "test_report.txt"), "w") as f:
         f.write(report)
 
-    trainer.save_model(f"{output_dir}/final")
-    tokenizer.save_pretrained(f"{output_dir}/final")
+    trainer.save_model(os.path.join(output_dir, "final"))
+    tokenizer.save_pretrained(os.path.join(output_dir, "final"))
 
     if push_to_hub:
         hub_repo = model_cfg["hub_repo"]
@@ -109,7 +146,8 @@ def main(model_key, config_path, push_to_hub):
         tokenizer.push_to_hub(hub_repo)
         print(f"Pushed to https://huggingface.co/{hub_repo}")
 
-        links_path = "models/hub_repo_links.json"
+        links_path = os.path.join(PROJECT_ROOT, "models", "hub_repo_links.json")
+        os.makedirs(os.path.dirname(links_path), exist_ok=True)
         links = {}
         if os.path.exists(links_path):
             with open(links_path) as f:
@@ -118,10 +156,13 @@ def main(model_key, config_path, push_to_hub):
         with open(links_path, "w") as f:
             json.dump(links, f, indent=2)
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model_key", required=True, choices=["xlmr", "roberta_tagalog", "mbert"])
-    parser.add_argument("--config", default="configs/training_config.yaml")
+    parser.add_argument(
+        "--model_key", required=True, choices=["xlmr", "roberta_tagalog", "mbert"]
+    )
+    parser.add_argument("--config", default=DEFAULT_CONFIG)
     parser.add_argument("--push_to_hub", action="store_true")
     args = parser.parse_args()
     main(args.model_key, args.config, args.push_to_hub)

@@ -115,6 +115,7 @@ def main(model_key, config_path, push_to_hub):
         metric_for_best_model="f1",
         logging_steps=50,
         report_to="none",
+        disable_tqdm=True,
     )
 
     trainer = WeightedTrainer(

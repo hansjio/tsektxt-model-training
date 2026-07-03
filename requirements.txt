@@ -1,0 +1,10 @@
+To recreate this project, you will need to have the following dependencies listed below:
+
+datasets
+accelerate
+scikit-learn
+evaluate
+huggingface_hub // optional, only if you want to upload your model to the Hugging Face Hub.
+torch
+pandas
+pyyaml

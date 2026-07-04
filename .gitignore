@@ -1,5 +1,25 @@
+# Python
 __pycache__/
 *.pyc
+*.pyo
 .env
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Model weights and large binaries — these belong on Hugging Face Hub, not GitHub
 *.safetensors
 *.bin
+*.pt
+*.pth
+results/*/final/
+results/*/checkpoints/
+
+# Processed data cache — regenerated automatically from raw data + seed
+data/processed/
+
+# OS-specific junk files
+.DS_Store
+Thumbs.db

@@ -3,6 +3,3 @@ __pycache__/
 .env
 *.safetensors
 *.bin
-data/processed/
-results/*/final/
-.ipynb_checkpoints/

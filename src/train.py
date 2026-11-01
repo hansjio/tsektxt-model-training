@@ -125,7 +125,7 @@ def main():
     m = metrics_from(te.label.values, y_pred, pos); m["model"] = a.model; m["base_model"] = base
     json.dump(m, open(out / "metrics.json", "w"), indent=2)
     pd.DataFrame({"id": te.id, "y_true": te.label, "y_pred": y_pred, "prob_credible": probs[:, 1]}).to_csv(out / "test_predictions.csv", index=False)
-    (out / "MODEL_CARD.md").write_text(model_card(a.model, cfg, base, m, counts))
+    (out / "MODEL_CARD.md").write_text(model_card(a.model, cfg, base, m, {"all": len(tr) + len(va) + len(te)}))
 
     mdir.mkdir(parents=True, exist_ok=True); trainer.save_model(str(mdir)); tok.save_pretrained(str(mdir))
     print(json.dumps(m, indent=2))

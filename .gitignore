@@ -1,25 +1,21 @@
-# Python
+# Python / Jupyter
 __pycache__/
 *.pyc
-*.pyo
 .env
 venv/
-env/
-
-# Jupyter
+.venv/
 .ipynb_checkpoints/
-
-# Model weights and large binaries — these belong on Hugging Face Hub, not GitHub
+# Model weights live on Hugging Face, not GitHub
+models/
 *.safetensors
 *.bin
 *.pt
-*.pth
-results/*/final/
 results/*/checkpoints/
-
-# Processed data cache — regenerated automatically from raw data + seed
+# Regenerated from data/raw by clean_data.py + make_splits.py
 data/processed/
-
-# OS-specific junk files
+# External Taglish social-media set: keep private (platform terms / ethics section of the thesis)
+data/external/*
+!data/external/.gitkeep
+# OS junk
 .DS_Store
 Thumbs.db

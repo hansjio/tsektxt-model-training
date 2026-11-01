@@ -1,0 +1,21 @@
+{
+  "accuracy": 0.9426768340783592,
+  "precision_not_credible": 0.9150326797385621,
+  "recall_not_credible": 0.925789860396767,
+  "f1_not_credible": 0.9203798392987582,
+  "macro_f1": 0.937798793930398,
+  "weighted_f1": 0.9427501191885633,
+  "confusion_matrix_[[tn,fp],[fn,tp]]_pos=not_credible": [
+    [
+      2325,
+      117
+    ],
+    [
+      101,
+      1260
+    ]
+  ],
+  "n": 3803,
+  "model": "xlmr",
+  "base_model": "xlm-roberta-base"
+}

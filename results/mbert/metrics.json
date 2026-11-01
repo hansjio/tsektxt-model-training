@@ -1,0 +1,21 @@
+{
+  "accuracy": 0.9300552195635025,
+  "precision_not_credible": 0.8810020876826722,
+  "recall_not_credible": 0.9301983835415136,
+  "f1_not_credible": 0.9049320943531094,
+  "macro_f1": 0.9248038175592502,
+  "weighted_f1": 0.9304523405110878,
+  "confusion_matrix_[[tn,fp],[fn,tp]]_pos=not_credible": [
+    [
+      2271,
+      171
+    ],
+    [
+      95,
+      1266
+    ]
+  ],
+  "n": 3803,
+  "model": "mbert",
+  "base_model": "bert-base-multilingual-cased"
+}

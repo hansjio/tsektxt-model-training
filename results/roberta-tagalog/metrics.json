@@ -1,0 +1,21 @@
+{
+  "accuracy": 0.9450433867998949,
+  "precision_not_credible": 0.9102564102564102,
+  "recall_not_credible": 0.9390154298310066,
+  "f1_not_credible": 0.9244122965641953,
+  "macro_f1": 0.9406196992013292,
+  "weighted_f1": 0.9452266416811457,
+  "confusion_matrix_[[tn,fp],[fn,tp]]_pos=not_credible": [
+    [
+      2316,
+      126
+    ],
+    [
+      83,
+      1278
+    ]
+  ],
+  "n": 3803,
+  "model": "roberta-tagalog",
+  "base_model": "jcblaise/roberta-tagalog-base"
+}

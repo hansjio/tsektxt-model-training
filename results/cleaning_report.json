@@ -1,0 +1,13 @@
+{
+  "rows_in": 25398,
+  "rows_modified_by_basic_cleaning": 21088,
+  "dropped_too_short": 2,
+  "dropped_conflicting_label_duplicates": 6,
+  "dropped_duplicates": 38,
+  "rows_out": 25352,
+  "label_counts": {
+    "1": 16283,
+    "0": 9069
+  },
+  "leftover_mojibake_rows": 2
+}

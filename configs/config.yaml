@@ -1,0 +1,34 @@
+# Single source of truth. Values follow the Chapter III methodology unless noted.
+seed: 42
+
+data:
+  processed_csv: data/processed/cleaned.csv
+  splits_dir: data/processed
+  split_ratio: {train: 0.70, val: 0.15, test: 0.15}   # Chapter III, E.3
+  min_words: 10                                         # Chapter III, C.1 (approximated by whitespace words)
+
+# Label convention (matches the dataset AND Chapter III): 1 = credible, 0 = not credible.
+# Not credible (0) is the POSITIVE class for precision/recall/F1 (Chapter III, F.2).
+labels:
+  id2label: {0: not_credible, 1: credible}
+  positive_label: 0
+
+training:
+  max_length: 128            # Chapter III. Change to 256 only if you also update the manuscript.
+  learning_rate: 2.0e-5
+  train_batch_size: 16
+  eval_batch_size: 32
+  max_epochs: 5              # Chapter III: 3-5 epochs
+  early_stopping_patience: 2 # on validation loss
+  weight_decay: 0.01
+  warmup_ratio: 0.1          # AdamW + linear warmup
+  class_weighted_loss: true  # document this in Chapter III if kept (not stated there currently)
+
+models:
+  roberta-tagalog: jcblaise/roberta-tagalog-base
+  mbert: bert-base-multilingual-cased
+  xlmr: xlm-roberta-base
+
+hub:
+  user: hansjio
+  repo_names: {roberta-tagalog: tsektxt-roberta-tagalog, mbert: tsektxt-mbert, xlmr: tsektxt-xlmr}

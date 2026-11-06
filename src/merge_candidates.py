@@ -1,15 +1,15 @@
 """Merge every candidate file for the supplementary (Taglish, TEST-ONLY) set into ONE sheet-ready CSV for annotation.
 
-    python src/merge_candidates.py --groupmate C:/Users/Jio/Downloads/candidate_sources.csv
+    python src/merge_candidates.py          (groupmate file defaults to data/external/groupmate_candidate_sources.csv)
 
 Inputs (data/external/, never modified): draft_prelabelled.csv, draft_testset_v2_filled.csv, x_fetched_text_REVIEW.csv,
-label1_candidates_news_REVIEW.csv, supplementary_collected_antigravity.csv, plus the groupmate's candidate_sources.csv.
+label1_candidates_news_REVIEW.csv, supplementary_collected_auto.csv, plus the groupmate's candidate_sources.csv.
 Outputs: data/external/merged_for_annotation.csv, merged_for_annotation.rejects.csv (every dropped row + reason),
          merged_for_annotation.report.json.
 
 Rules:
 - One row per real post: duplicates found by X status id or normalised Facebook URL. Origin files and all fact-check links are kept.
-- Human label columns (annotator_1_label, annotator_2_label, final_label) are always EMPTY. AI pre-labels and fact-check
+- Human label columns (annotator_1_label, annotator_2_label, final_label) are always EMPTY. Draft pre-label hints and fact-check
   verdicts go to hint columns only and never count as labels.
 - Text is the post's own words only. The groupmate's `text` column is the fact-checker's claim summary (one summary is shared
   by up to 50 posts), so it goes to `claim_summary`, and `needs_text` = yes until someone copies the real post text.
@@ -55,16 +55,24 @@ def clean_url(u):
     return (u or "").strip().replace("&amp;", "&").replace("&#038;", "&")
 
 
+def is_junk(t):
+    """Facebook UI/obfuscation captured instead of a caption (letter-per-line with U+034F, 'This photo is from a post')."""
+    t = t or ""
+    lines = t.split("\n")
+    return ("͏" in t or "this photo is from a post" in t.lower()
+            or (len(lines) > 3 and all(len(l.strip()) <= 3 for l in lines[:4])))
+
+
 def is_url(s):
     return bool(re.match(r"https?://", (s or "").strip()))
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--groupmate", required=True, help="groupmate's candidate_sources.csv")
+    ap.add_argument("--groupmate", default=str(EXT / "groupmate_candidate_sources.csv"), help="groupmate's candidate_sources.csv")
     ap.add_argument("--out", default=str(EXT / "merged_for_annotation.csv"))
     ap.add_argument("--filled-text", nargs="+", default=[str(EXT / "needs_text_filled.csv"), str(EXT / "x_embed_filled.csv")],
-                    help="post-text fill files (Antigravity Task 04, X public embed); each is used if it exists")
+                    help="post-text fill files (text copied from the posts, X public embed); each is used if it exists")
     a = ap.parse_args()
     rows, rejects, notes = {}, [], Counter()
 
@@ -86,7 +94,7 @@ def main():
                 r[c] = v
         if r["text"]: r["needs_text"] = ""
 
-    # 1. Claude fact-check drafts (163, text quoted by fact-checker; final_label there is an AI pre-label)
+    # 1. Fact-check drafts (163, text quoted by fact-checker; final_label there is only a draft pre-label hint)
     for x in read(EXT / "draft_prelabelled.csv"):
         add(key(x["url"]), "draft_prelabelled", {**{c: x.get(c, "") for c in COLS if c not in ("annotator_1_label", "annotator_2_label", "final_label")},
             "ai_prelabel_hint": x.get("final_label", ""), "factcheck_verdict_hint": x.get("label_hint_from_factcheck", ""),
@@ -109,10 +117,10 @@ def main():
             "factcheck_verdict_hint": "", "ai_prelabel_hint": x.get("label_hint", ""), "source_account": x.get("source_account", ""),
             "source_type": "news_outlet", "text_origin": x.get("text_origin", ""),
             "merge_notes": "" if is_url(x.get("label_source")) else f"label_source was '{x.get('label_source', '')}' (not a URL)"})
-    # 5. Antigravity collection (no labels, no fact-check)
-    ag = EXT / "supplementary_collected_antigravity.csv"
+    # 5. Automated collection (no labels, no fact-check)
+    ag = EXT / "supplementary_collected_auto.csv"
     for x in (read(ag) if ag.exists() else []):
-        add(key(x["url"]), "antigravity", {**{c: x.get(c, "") for c in COLS[:9]}, "source_type": x.get("source_type", ""),
+        add(key(x["url"]), "auto_collection", {**{c: x.get(c, "") for c in COLS[:9]}, "source_type": x.get("source_type", ""),
             "source_account": x.get("source_account", ""), "has_checkable_claim": x.get("has_checkable_claim", ""),
             "language_pattern": x.get("language_guess", ""), "text_origin": x.get("text_origin", "")})
     # 6. Groupmate's candidate_sources.csv (fact-check embeds; text = fact-checker's claim summary)
@@ -132,12 +140,14 @@ def main():
         add(k, "groupmate_candidate_sources", {"post_id": "gm-" + (k.split(":")[-1] if k.startswith("x:") else str(len(seen))),
             "platform": x.get("platform", ""), "url": u, "collection date": "", "collector": "groupmate",
             "needs_text": "yes", "claim_summary": x.get("text", ""), "factcheck_rating": x.get("rating", ""),
-            "factcheck_verdict_hint": "0", "label_source": x.get("evidence_url", ""), "all_factcheck_urls": x.get("evidence_url", ""),
+            "factcheck_verdict_hint": "", "label_source": x.get("evidence_url", ""), "all_factcheck_urls": x.get("evidence_url", ""),
             "candidate_political_actor": x.get("candidates", "").replace("; ", ", "),
             "language_pattern": "taglish" if x.get("taglish") == "Y" else "",
-            "merge_notes": f"factcheck date {x.get('date', '')}; post date unverified"})
+            # No verdict hint: the rating is about the CLAIM in the fact-check. The linked post may repeat the false claim
+            # OR be a real post (e.g. a news report) that the fact-check links to as the debunk. Annotators must read it.
+            "merge_notes": f"factcheck date {x.get('date', '')}; post date unverified; fact-check rating applies to the claim, not necessarily to this post"})
 
-    # 7. Text filled from the posts themselves (Antigravity Task 04), only into rows that still have no text
+    # 7. Text copied from the posts themselves, only into rows that still have no text
     for fill in (p for p in a.filled_text if Path(p).exists()):
         for x in read(fill):
             k = key(x.get("url")); r = rows.get(k)
@@ -147,6 +157,8 @@ def main():
                 if not (WINDOW[0] <= x["post_date"] <= WINDOW[1]):
                     r["merge_notes"] = (r["merge_notes"] + "; " if r["merge_notes"] else "") + f"POST DATE {x['post_date']} OUTSIDE WINDOW"
                     notes["filled_post_date_outside_window"] += 1
+            if is_junk(x.get("text")):
+                notes["fill_rows_with_junk_text_ignored"] += 1; continue
             if not r["text"] and (x.get("text") or "").strip() and x.get("text_origin") in ("copied_from_post", "image_text_transcribed"):
                 r["text"] = x["text"].strip(); r["text_origin"] = x["text_origin"]; r["needs_text"] = ""
                 r["origin_files"] += "; needs_text_filled"; notes["text_filled_from_post"] += 1

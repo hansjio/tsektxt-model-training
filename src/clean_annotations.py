@@ -7,7 +7,7 @@ Output: --out        id, text, label (+ metadata columns kept for profiling)   [
         --rejects    every dropped row with a reason (nothing is silently lost)
         <out>.report.json  counts per step
 
-Rules (CLAUDE.md): every row needs a real URL and a fact-check source; no invented posts; this set is TEST ONLY.
+Rules: every row needs a real URL and a fact-check source; no invented posts; this set is TEST ONLY.
 Label resolution: final_label if set; else the shared label when both annotators agree; else the row is rejected as
 'unresolved' (annotators must discuss it, see annotation_kappa.py disagreements file). Never guessed.
 Text cleaning matches clean_data.py (ftfy if installed, HTML, URLs, zero-width, whitespace). Pure stdlib + optional ftfy.
@@ -40,10 +40,12 @@ def norm_key(s, n=200):
 
 def resolve_label(r):
     """(label or None, reason). Order: final_label, then agreement of annotators."""
+    if any(str(r.get(k) or "").strip().lower() == "skip" for k in ("final_label", "annotator_1_label", "annotator_2_label")):
+        return None, "skipped_by_annotator"  # satire/opinion/unclear: dropdown value 'skip' in the sheet, never guessed
     try:
         fin, a1, a2 = (parse_label(r.get(k)) for k in ("final_label", "annotator_1_label", "annotator_2_label"))
     except ValueError as e: return None, f"invalid_label ({e})"
-    # final_label alone (e.g. an AI pre-label) never counts: both humans must have labelled.
+    # final_label alone (e.g. a draft pre-label) never counts: both humans must have labelled.
     if a1 is None or a2 is None: return None, "no_label"
     if a1 == a2: return (a1, "ok") if fin is None or fin == a1 else (None, "final_label_contradicts_annotators")
     if fin is not None: return fin, "ok"  # humans disagreed and then settled it in final_label

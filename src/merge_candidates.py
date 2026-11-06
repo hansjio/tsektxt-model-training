@@ -63,7 +63,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--groupmate", required=True, help="groupmate's candidate_sources.csv")
     ap.add_argument("--out", default=str(EXT / "merged_for_annotation.csv"))
-    ap.add_argument("--filled-text", default=str(EXT / "needs_text_filled.csv"), help="Task 04 output (used if it exists)")
+    ap.add_argument("--filled-text", nargs="+", default=[str(EXT / "needs_text_filled.csv"), str(EXT / "x_embed_filled.csv")],
+                    help="post-text fill files (Antigravity Task 04, X public embed); each is used if it exists")
     a = ap.parse_args()
     rows, rejects, notes = {}, [], Counter()
 
@@ -137,8 +138,8 @@ def main():
             "merge_notes": f"factcheck date {x.get('date', '')}; post date unverified"})
 
     # 7. Text filled from the posts themselves (Antigravity Task 04), only into rows that still have no text
-    if a.filled_text and Path(a.filled_text).exists():
-        for x in read(a.filled_text):
+    for fill in (p for p in a.filled_text if Path(p).exists()):
+        for x in read(fill):
             k = key(x.get("url")); r = rows.get(k)
             if not r: continue
             if x.get("post_date"):

@@ -69,10 +69,26 @@ python src/evaluate_external.py --model xlmr --csv data/external/taglish_test.cs
 python src/compare.py                                                  # -> results/comparison.md
 python src/baseline.py                                                 # TF-IDF + LogReg baseline (run before compare.py)
 python src/leakage_probe.py                                            # source-style diagnostic
+python src/domain_shift_checks.py                                      # length cuts + link check (inference only) -> results/domain_shift.*
 python src/plot_training.py                                            # loss curves -> results/figures/
 python src/bootstrap_ci.py                                             # confidence intervals -> results/bootstrap_ci.json
 ```
-A Colab version is in `notebooks/colab_train.ipynb` (T4 GPU; add a Hugging Face write token as the Colab secret `HF_TOKEN`).
+**Which Colab notebook?**
+- `notebooks/colab_eval.ipynb`: **use this one.** It tests the models, scores the Taglish set (metrics, bootstrap CIs, McNemar + Holm) and runs Integrated Gradients. It never retrains anything. [Open in Colab](https://colab.research.google.com/github/hansjio/tsektxt-model-training/blob/master/notebooks/colab_eval.ipynb)
+- `notebooks/colab_train.ipynb`: **only if the group decides to retrain.** It overwrites the models on Hugging Face (T4 GPU; needs a Hugging Face write token as the Colab secret `HF_TOKEN`).
+
+Taglish test set, after annotation (see `notebooks/colab_eval.ipynb` sections 3-4):
+```bash
+python src/merge_candidates.py                                         # all candidate posts -> one sheet-ready file (local only)
+python src/annotation_kappa.py --csv data/external/annotated.csv       # agreement of the 2 annotators
+python src/clean_annotations.py --csv data/external/annotated.csv --out data/external/taglish_test.csv
+python src/evaluate_external.py --model xlmr --csv data/external/taglish_test.csv   # x3 models
+python src/baseline.py --external data/external/taglish_test.csv
+python src/external_stats.py                                           # bootstrap CIs + McNemar with Holm
+python src/compare.py
+python src/interpret.py corpus --csv data/external/taglish_test.csv    # Integrated Gradients -> results/ig_*.json
+python src/profile_corpus.py --csv data/external/taglish_test.csv --name taglish
+```
 
 ## Repository layout
 
@@ -86,25 +102,43 @@ src/evaluate_external.py   evaluate on the Taglish election test set
 src/compare.py             metrics tables + McNemar tests
 src/baseline.py            non-neural TF-IDF + LogReg baseline
 src/leakage_probe.py       first/last-12-words source-style diagnostic
+src/domain_shift_checks.py accuracy when articles are cut short; effect of links (inference only)
+src/screen_candidates.py   pre-annotation screening of candidate posts: usable / check / drop + hints (never labels)
+src/confidence_check.py    how confident each model is when it is wrong (from saved predictions)
+src/length_bins.py         Taglish results by fixed length bins (under 20 / 20-39 / 40-99 / 100+ words); primary result stays the full set
 src/plot_training.py       train/validation loss curves
 src/bootstrap_ci.py        95% bootstrap confidence intervals
-THESIS_INPUTS.md           numbers, tables and open decisions organised by thesis section
+src/external_stats.py      Taglish set: paired bootstrap CIs + McNemar with Holm correction
+src/interpret.py           Integrated Gradients (Captum): per-post words, completeness check, top predictors, cross-model overlap
+src/predict.py             try the 3 models on any text, no frontend
+src/merge_candidates.py    merge all Taglish candidate sources into one file for annotation
+src/annotation_kappa.py    Cohen's kappa between the 2 annotators
+src/clean_annotations.py   labelled sheet export -> taglish_test.csv
+src/profile_corpus.py      word frequencies per label (corpus analysis)
+src/harvest_factchecks.py, src/build_draft_testset.py   fact-check worklists (already run)
 src/upload_cards.py        upload model_cards/*.md to Hugging Face
 model_cards/               refined Hugging Face model cards
 results/                   metrics, comparison, cleaning report
-notebooks/colab_train.ipynb
+tests/                     smoke tests on dummy data only
+notebooks/colab_eval.ipynb  test + Taglish scoring + IG (use this)
+notebooks/colab_train.ipynb retraining only (do not run unless the group decides to retrain)
 ```
+The demo app is a separate repo: https://github.com/hansjio/tsektxt-app (runs the 3 models + IG locally).
 
 ## Status
 
 - [x] Cleaning, training and internal evaluation of all three models
 - [x] Baseline (TF-IDF + LogReg), loss curves, leakage diagnostic
-- [ ] Taglish election test set: collection, annotation (Cohen's kappa >= 0.61), evaluation
-- [ ] Integrated Gradients top-predictor analysis
-- [ ] Simulation demo
+- [x] Taglish election test set: collection (811 candidate posts merged)
+- [ ] Taglish election test set: annotation (Cohen's kappa >= 0.61), evaluation
+- [x] Integrated Gradients and Taglish scoring code (tested on dummy data)
+- [ ] Integrated Gradients top-predictor analysis on the labelled Taglish set
+- [x] Local three-model demo app (separate repo)
 
 ## Limitations
 
 Labels reflect source credibility rather than verified claims; training text is news rather than social media; single seed;
-128-token truncation. Model outputs are not fact-checks and should not be used for automated moderation or judgements about
+128-token truncation. The models were trained on long articles, so short social posts are out of domain: in informal
+spot-checks they called most short posts "not credible" with high confidence (see the thesis hub note docs/FINDINGS_DOMAIN_SHIFT.md;
+measured by `src/domain_shift_checks.py`). Model outputs are not fact-checks and should not be used for automated moderation or judgements about
 individuals or outlets.

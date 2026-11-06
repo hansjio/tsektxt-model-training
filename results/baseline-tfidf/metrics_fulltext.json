@@ -1,0 +1,20 @@
+{
+  "accuracy": 0.9508282934525375,
+  "precision_not_credible": 0.9099162011173184,
+  "recall_not_credible": 0.9573842762674504,
+  "f1_not_credible": 0.933046902971715,
+  "macro_f1": 0.9470968984004637,
+  "weighted_f1": 0.9510905994413466,
+  "confusion_matrix_[[tn,fp],[fn,tp]]_pos=not_credible": [
+    [
+      2313,
+      129
+    ],
+    [
+      58,
+      1303
+    ]
+  ],
+  "n": 3803,
+  "model": "baseline-tfidf-fulltext"
+}

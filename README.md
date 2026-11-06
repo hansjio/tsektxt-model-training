@@ -26,6 +26,7 @@ Combined Fake News Filipino Dataset and Philippine Fake News Corpus, cleaned by 
 | **RoBERTa-Tagalog** | **0.9450** | **0.9103** | **0.9390** | **0.9244** | **0.9406** | **0.9452** |
 | mBERT | 0.9301 | 0.8810 | 0.9302 | 0.9049 | 0.9248 | 0.9305 |
 | XLM-RoBERTa | 0.9427 | 0.9150 | 0.9258 | 0.9204 | 0.9378 | 0.9428 |
+| TF-IDF + LogReg baseline (first 128 words) | 0.9258 | 0.8739 | 0.9265 | 0.8994 | 0.9204 | 0.9263 |
 
 (NC = not credible, the positive class. Bold = highest weighted F1, the thesis's primary comparison metric.)
 
@@ -51,6 +52,8 @@ Training summary (Tesla T4, early stopping on validation loss, patience 2; the c
 (p = 0.55), so this run does not show that one beats the other. Both are significantly better than mBERT. Each number comes from
 one training run (one seed).
 
+**Baseline.** A non-neural baseline (TF-IDF word 1-2 grams + class-balanced logistic regression, first 128 words, same split) is significantly worse than RoBERTa-Tagalog (p = 0.00002) and XLM-RoBERTa (p = 0.0002) but not significantly different from mBERT (p = 0.39). Given the full article text it reaches 0.9508 accuracy, above all three transformers (not significance-tested), which shows how much of the internal test set can be solved from surface and source-style cues. Loss curves: `results/figures/loss_curves.png`.
+
 **Caution.** In the cleaned corpus a plain TF-IDF classifier reaches about 82% accuracy from only the last 12 words of an article, because labels
 come from the publishing site and sign-off lines differ between sites. The internal scores therefore partly reflect source style. The
 informal Taglish election test set is the meaningful test of real-world generalisation and is still pending.
@@ -64,6 +67,10 @@ python src/make_splits.py                                              # 70/15/1
 python src/run_all.py --push                                           # train all three, upload, compare
 python src/evaluate_external.py --model xlmr --csv data/external/taglish_test.csv   # per model, later
 python src/compare.py                                                  # -> results/comparison.md
+python src/baseline.py                                                 # TF-IDF + LogReg baseline (run before compare.py)
+python src/leakage_probe.py                                            # source-style diagnostic
+python src/plot_training.py                                            # loss curves -> results/figures/
+python src/bootstrap_ci.py                                             # confidence intervals -> results/bootstrap_ci.json
 ```
 A Colab version is in `notebooks/colab_train.ipynb` (T4 GPU; add a Hugging Face write token as the Colab secret `HF_TOKEN`).
 
@@ -77,6 +84,11 @@ src/train.py               fine-tune one model, write metrics + model card
 src/run_all.py             train all three models and compare
 src/evaluate_external.py   evaluate on the Taglish election test set
 src/compare.py             metrics tables + McNemar tests
+src/baseline.py            non-neural TF-IDF + LogReg baseline
+src/leakage_probe.py       first/last-12-words source-style diagnostic
+src/plot_training.py       train/validation loss curves
+src/bootstrap_ci.py        95% bootstrap confidence intervals
+THESIS_INPUTS.md           numbers, tables and open decisions organised by thesis section
 src/upload_cards.py        upload model_cards/*.md to Hugging Face
 model_cards/               refined Hugging Face model cards
 results/                   metrics, comparison, cleaning report
@@ -86,8 +98,9 @@ notebooks/colab_train.ipynb
 ## Status
 
 - [x] Cleaning, training and internal evaluation of all three models
+- [x] Baseline (TF-IDF + LogReg), loss curves, leakage diagnostic
 - [ ] Taglish election test set: collection, annotation (Cohen's kappa >= 0.61), evaluation
-- [ ] Integrated Gradients and SHAP top-predictor analysis
+- [ ] Integrated Gradients top-predictor analysis
 - [ ] Simulation demo
 
 ## Limitations

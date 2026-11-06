@@ -1,0 +1,61 @@
+{
+  "roberta-tagalog": {
+    "best_epoch": 2,
+    "gap_at_best": 0.08708625707626344,
+    "gap_at_last": 0.28866827807426454,
+    "notes": [
+      "OVERFITTING after epoch 2: val loss rose +0.076 while train loss kept falling",
+      "large generalisation gap at last epoch (0.289)"
+    ],
+    "train_loss": {
+      "1": 0.3494,
+      "2": 0.1609,
+      "3": 0.0828,
+      "4": 0.0354
+    },
+    "val_loss": {
+      "1": 0.2569445073604584,
+      "2": 0.24798625707626343,
+      "3": 0.28778865933418274,
+      "4": 0.3240682780742645
+    }
+  },
+  "mbert": {
+    "best_epoch": 1,
+    "gap_at_best": -0.1324333974123001,
+    "gap_at_last": 0.12280279850959777,
+    "notes": [
+      "large generalisation gap at last epoch (0.123)"
+    ],
+    "train_loss": {
+      "1": 0.354,
+      "2": 0.1809,
+      "3": 0.1015
+    },
+    "val_loss": {
+      "1": 0.2215666025876999,
+      "2": 0.2239065170288086,
+      "3": 0.22430279850959778
+    }
+  },
+  "xlmr": {
+    "best_epoch": 2,
+    "gap_at_best": 0.020811338472366325,
+    "gap_at_last": 0.155360532951355,
+    "notes": [
+      "large generalisation gap at last epoch (0.155)"
+    ],
+    "train_loss": {
+      "1": 0.3963,
+      "2": 0.2212,
+      "3": 0.1401,
+      "4": 0.0888
+    },
+    "val_loss": {
+      "1": 0.28624072670936584,
+      "2": 0.24201133847236633,
+      "3": 0.2683574855327606,
+      "4": 0.24416053295135498
+    }
+  }
+}

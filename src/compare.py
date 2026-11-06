@@ -8,7 +8,7 @@ from pathlib import Path
 import pandas as pd
 from scipy.stats import binomtest, chi2
 
-MODELS = ["roberta-tagalog", "mbert", "xlmr"]
+MODELS = ["roberta-tagalog", "mbert", "xlmr", "baseline-tfidf"]
 
 
 def mcnemar(y, p1, p2):

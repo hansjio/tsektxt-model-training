@@ -1,5 +1,5 @@
 ---
-license: cc-by-nc-4.0
+license: cc-by-sa-4.0
 base_model: jcblaise/roberta-tagalog-base
 language:
 - tl
@@ -107,11 +107,14 @@ b = first model correct and second wrong; c = the reverse.
 
 Differences are small, come from a single training run per model (one seed), and are measured on the internal formal-news test set only.
 
+A non-neural baseline (TF-IDF + logistic regression on the first 128 words) scored accuracy 0.9258 and weighted F1 0.9263. It was significantly worse than RoBERTa-Tagalog (p = 0.00002) and XLM-RoBERTa (p = 0.0002) but not significantly different from mBERT (p = 0.39).
+
 ## Limitations
 
-- **Labels follow the source, not the claim.** Articles are labelled by the credibility of the publishing site. In a diagnostic on the cleaned corpus,
-  a simple TF-IDF logistic regression reached about 82% accuracy using only the last 12 words of each article (for example sign-off lines),
-  so the model can score well by recognising source style rather than factual accuracy. High internal scores should not be read as proof of detecting misinformation.
+- **Labels follow the source, not the claim.** Articles are labelled by the credibility of the publishing site. In a diagnostic on the official train/test split,
+  a simple TF-IDF logistic regression reached 81.9% accuracy from only the first 12 words and 83.1% from only the last 12 words of each article (majority-class rate: 64.2%),
+  so labels partly encode source style. A TF-IDF + logistic regression baseline also reaches 92.6% accuracy on the first 128 words (95.1% on full text), close to the transformers' 93.0-94.5%.
+  High internal scores should therefore not be read as proof of detecting factual misinformation (`src/leakage_probe.py`, `src/baseline.py` in the training repo).
 - **Domain gap.** Training data are news articles in Filipino and English; the target use is informal, code-switched Taglish social-media text, which this card does not evaluate.
 - **Long texts** are truncated to 128 tokens.
 - **Single run.** No variation across random seeds was measured.
@@ -133,4 +136,4 @@ Training code and results: https://github.com/hansjio/tsektxt-model-training
 
 Authors: Clark Amba, Hans Jio Arca, Samantha Nicole Fernandez, Christian Dysar Nuñezca.
 
-Licence note: check that the CC BY-NC 4.0 label here is compatible with the licences of the base model and the two source datasets before wider reuse.
+Licence note: the base model `jcblaise/roberta-tagalog-base` is CC BY-SA 4.0, so these derived weights are released under CC BY-SA 4.0 (share-alike). The two source datasets are used under the terms their authors published; confirm those terms before wider reuse.

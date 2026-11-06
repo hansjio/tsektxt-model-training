@@ -1,0 +1,21 @@
+{
+  "accuracy": 0.9258480147252169,
+  "precision_not_credible": 0.8738738738738738,
+  "recall_not_credible": 0.9265246142542248,
+  "f1_not_credible": 0.8994293865905849,
+  "macro_f1": 0.9203519277809235,
+  "weighted_f1": 0.9262991449849087,
+  "confusion_matrix_[[tn,fp],[fn,tp]]_pos=not_credible": [
+    [
+      2260,
+      182
+    ],
+    [
+      100,
+      1261
+    ]
+  ],
+  "n": 3803,
+  "model": "baseline-tfidf",
+  "base_model": "TF-IDF(1-2gram)+LogReg, first 128 words"
+}

@@ -21,7 +21,10 @@ UA = "Mozilla/5.0 (thesis research; polite, 1 req/sec)"
 SOCIAL = re.compile(r'https?://(?:www\.|m\.|web\.|mobile\.)?(?:facebook\.com|fb\.watch|fb\.com|twitter\.com|x\.com)/[^\s"\'<>)\\]+', re.I)
 ELECTION = re.compile(r"marcos|robredo|leni|bbm|duterte|sara|isko|moreno|pacquiao|lacson|sotto|halal|election|comelec|boto|vote|ballot|campaign|kakampink|uniteam", re.I)
 FALSE = re.compile(r"\bfalse\b|\bfake\b|misleading|mislead|hoax|nakaliligaw|mali\b|walang katotohanan|no basis|doctored|unfounded|not true|fabricated", re.I)
-TRUE = re.compile(r"\btrue\b|\baccurate\b|\bcorrect\b|\btotoo\b|\bverified\b", re.I)
+# Credible hint only on clear verdict wording. NOT "totoo": Tsek titles "Totoo o hindi..." ("True or not") name the claim, not the verdict.
+TRUE = re.compile(r"\b(?:is|are|was|were) (?:true|accurate|correct)\b|\bpatunay\b|\bverified true\b", re.I)
+# Links that point at the fact-checkers themselves (their own page/plugin), never at the misinformation post.
+FACTCHECKER_LINK = re.compile(r"facebook\.com/plugins/|(?:facebook|twitter|x)\.com/(?:verafiles|tsekph|tsek\.ph|factcheckphils|factcheckpatrol|rapplerdotcom|vera\.files)\b|/factcheck(?:phils|patrol)", re.I)
 TAGALOG_TITLE = re.compile(r"\b(nag post|nagpost|kolumnistang|nakaliligaw|walang|ang|ng|mga|sa)\b", re.I)
 NUM = r"(?:more than |over |at least )?([\d,\.]+)\s*(k|thousand)?"
 
@@ -29,6 +32,15 @@ NUM = r"(?:more than |over |at least )?([\d,\.]+)\s*(k|thousand)?"
 def get(url):
     with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": UA}), timeout=40) as r:
         return json.loads(r.read().decode("utf-8"))
+
+
+def unembed(u):
+    """Facebook embed URLs (plugins/post.php?href=...) -> the real post URL; trailing punctuation removed."""
+    u = html.unescape(u).rstrip(".,;")
+    if "facebook.com/plugins/" in u:
+        href = urllib.parse.parse_qs(urllib.parse.urlparse(u).query).get("href")
+        if href: return href[0].rstrip("/")
+    return u
 
 
 def clean(s):
@@ -68,7 +80,7 @@ def main():
             if not posts: break
             for p in posts:
                 body, title = p["content"]["rendered"], clean(p["title"]["rendered"])
-                links = sorted({u.rstrip(".,;") for u in SOCIAL.findall(body)})
+                links = sorted({u for u in map(unembed, SOCIAL.findall(body)) if not FACTCHECKER_LINK.search(u)})
                 plain = clean(body)
                 if not links or not ELECTION.search(title + " " + plain[:3000]): continue
                 if TAGALOG_TITLE.search(title) and len(TAGALOG_TITLE.findall(title)) >= 3: continue  # Filipino twin

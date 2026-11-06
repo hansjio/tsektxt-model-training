@@ -64,6 +64,39 @@ class IG(unittest.TestCase):
             self.assertEqual(r["pred_label"], 0 if c["f_input"] > 0 else 1)
             self.assertAlmostEqual(r["prob_credible"] + r["prob_not_credible"], 1.0, places=5)
 
+    def test_baseline_uses_real_positions_roberta(self):
+        """Regression: RoBERTa-type models take position ids from input_ids (pad -> padding_idx), so
+        model(input_ids=base) is NOT the IG endpoint. f_baseline must equal the embedding-hook forward."""
+        import torch
+        tok, model, _ = self.ig.load("xlmr", self.dirs)
+        with torch.no_grad():  # make positions matter (random init makes them near-irrelevant)
+            torch.manual_seed(1)
+            model.roberta.embeddings.position_embeddings.weight.normal_(std=2.0)
+            model.classifier.out_proj.weight.normal_(std=1.0)
+        text = DUMMY[0]
+        enc = tok(text, return_tensors="pt")
+        ids, mask = enc["input_ids"], enc["attention_mask"]
+        special = torch.tensor(tok.get_special_tokens_mask(ids[0].tolist(), already_has_special_tokens=True)).bool()
+        base = torch.where(special, ids, torch.full_like(ids, tok.pad_token_id))
+        nc, cr = self.ig.label_index(model)
+        emb = model.get_input_embeddings()
+        with torch.no_grad():
+            naive = model(input_ids=base, attention_mask=mask).logits[0]
+            naive = (naive[nc] - naive[cr]).item()
+            be = emb(base); h = emb.register_forward_hook(lambda m, i, o: be)
+            expected = model(input_ids=ids, attention_mask=mask).logits[0]; h.remove()
+            expected = (expected[nc] - expected[cr]).item()
+        self.assertGreater(abs(naive - expected), 1e-4)  # the bug would show up here
+        r = self.ig.explain(tok, model, text, n_steps=200, max_steps=200)
+        self.assertAlmostEqual(r["completeness"]["f_baseline"], expected, places=5)
+        self.assertLess(r["completeness"]["rel_error"], 0.05)
+
+    def test_adaptive_steps(self):
+        tok, model, _ = self.ig.load("xlmr", self.dirs)
+        r = self.ig.explain(tok, model, DUMMY[0], n_steps=2, tol=1e-9, max_steps=8)
+        self.assertEqual(r["completeness"]["n_steps"], 8)  # doubled 2 -> 4 -> 8, then capped
+        self.assertEqual(r["completeness"]["n_steps_start"], 2)
+
     def test_truncation_128(self):
         tok, model, _ = self.ig.load("mbert", self.dirs)
         r = self.ig.explain(tok, model, " ".join(["boto"] * 300), n_steps=8)

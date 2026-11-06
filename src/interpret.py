@@ -16,6 +16,16 @@ What is attributed
   Layer    word-embedding layer (LayerIntegratedGradients); position/segment embeddings are untouched.
   Baseline same sequence with every non-special token replaced by the pad token (CLS/SEP/BOS/EOS kept).
   Completeness: sum of attributions should equal f(x) - f(baseline); we report the gap per post.
+           f(baseline) is computed with the REAL input ids and a forward hook on the word-embedding layer
+           that returns the baseline embeddings. This is exactly the IG path endpoint. Running
+           model(input_ids=base) instead is wrong for RoBERTa-type models (RoBERTa-Tagalog, XLM-R): they
+           derive position ids from input_ids (pad -> padding_idx), so the pad sequence gets different
+           positions than IG's endpoint, and the check compares against the wrong baseline. (mBERT uses
+           fixed positions and was unaffected.) The hook is preferred over explicit position_ids because
+           it needs no architecture-specific code.
+  Steps    adaptive: start at --n-steps (default 100) and double up to --max-steps (default 800) until
+           rel_error <= --tol (default 0.05). XLM-R had 18.5% real error at 50 steps and ~0% at 300.
+           Each record reports n_steps used, and "converged". Use --max-steps equal to --n-steps for fixed steps.
   Words    subword scores are summed into whitespace words via character offsets, so the three
            models (different tokenizers) can be compared on the same units.
 
@@ -33,6 +43,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CFG = yaml.safe_load(open(ROOT / "configs" / "config.yaml"))
 NAMES = list(CFG["models"])
 MAXLEN = CFG["training"]["max_length"]  # 128
+DEFAULT_STEPS, MAX_STEPS, TOL = 100, 800, 0.05  # adaptive IG: start at 100 steps, double until rel_error <= 5%
 DEV = "cuda" if torch.cuda.is_available() else "cpu"
 NOTES = [
     "Attribution target: logit(not_credible) - logit(credible); positive = toward not credible.",
@@ -93,8 +104,10 @@ def word_scores(text, offsets, scores):
 
 
 # ---------------------------------------------------------------- IG
-def explain(tok, model, text, n_steps=50, internal_batch_size=16):
-    """Features (1) and (2): per-token and per-word attributions plus the completeness check."""
+def explain(tok, model, text, n_steps=DEFAULT_STEPS, internal_batch_size=16, tol=TOL, max_steps=MAX_STEPS):
+    """Features (1) and (2): per-token and per-word attributions plus the completeness check.
+    Adaptive: starts at n_steps and doubles (up to max_steps) until rel_error <= tol.
+    Pass max_steps=n_steps for a fixed number of steps."""
     from captum.attr import LayerIntegratedGradients
     nc, cr = label_index(model)
     enc = tok(text, truncation=True, max_length=MAXLEN, return_offsets_mapping=True, return_tensors="pt")
@@ -108,16 +121,33 @@ def explain(tok, model, text, n_steps=50, internal_batch_size=16):
         lg = model(input_ids=input_ids, attention_mask=attention_mask).logits
         return lg[:, nc] - lg[:, cr]
 
-    lig = LayerIntegratedGradients(f, model.get_input_embeddings())
-    attr = lig.attribute(ids, baselines=base, additional_forward_args=(mask,), n_steps=n_steps,
-                         internal_batch_size=internal_batch_size)
-    tok_attr = attr.sum(-1)[0].detach().cpu().tolist()
+    emb_layer = model.get_input_embeddings()
+    lig = LayerIntegratedGradients(f, emb_layer)
     with torch.no_grad():
         logits = model(input_ids=ids, attention_mask=mask).logits[0]
-        fx, fb = f(ids, mask).item(), f(base, mask).item()
+        fx = f(ids, mask).item()
+        # f(baseline) must use the SAME path endpoint as IG: real ids (so RoBERTa-type models keep the
+        # real positions) with the word embeddings swapped for the baseline's. See module docstring.
+        base_emb = emb_layer(base)
+        hook = emb_layer.register_forward_hook(lambda m, i, o: base_emb)
+        try:
+            fb = f(ids, mask).item()
+        finally:
+            hook.remove()
+    diff = fx - fb
+
+    steps = int(n_steps)
+    while True:
+        attr = lig.attribute(ids, baselines=base, additional_forward_args=(mask,), n_steps=steps,
+                             internal_batch_size=internal_batch_size)
+        tok_attr = attr.sum(-1)[0].detach().cpu().tolist()
+        total = float(sum(tok_attr))
+        gap = total - diff
+        rel = abs(gap) / max(abs(diff), 1e-8)
+        if rel <= tol or steps >= max_steps:
+            break
+        steps = min(steps * 2, max_steps)
     probs = torch.softmax(logits, -1).cpu().tolist()
-    total, diff = float(sum(tok_attr)), fx - fb
-    gap = total - diff
     n_words_text = len(text.split())
     words = word_scores(text, offsets, tok_attr)
     return {
@@ -129,7 +159,8 @@ def explain(tok, model, text, n_steps=50, internal_batch_size=16):
         "words": words,
         "completeness": {
             "sum_attributions": total, "f_input": fx, "f_baseline": fb, "logit_diff": diff,
-            "abs_error": abs(gap), "rel_error": abs(gap) / max(abs(diff), 1e-8), "n_steps": n_steps,
+            "abs_error": abs(gap), "rel_error": rel, "n_steps": steps, "n_steps_start": int(n_steps),
+            "tolerance": tol, "converged": rel <= tol,
         },
     }
 
@@ -192,19 +223,20 @@ def overlap(tops, per_post=None, k_post=5):
 # ---------------------------------------------------------------- CLI
 def _meta(a, paths):
     return {"created": time.strftime("%Y-%m-%d %H:%M:%S"), "max_length": MAXLEN, "n_steps": a.n_steps,
+            "max_steps": a.max_steps, "tol": a.tol,
             "model_paths": paths, "device": DEV, "notes": NOTES}
 
 
 def _dump(obj, p):
     p.parent.mkdir(parents=True, exist_ok=True)
-    json.dump(obj, open(p, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
+    p.write_text(json.dumps(obj, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"wrote {p}", file=sys.stderr)
 
 
 def run_post(a, models, out):
     res = {"id": a.id, "text": a.text, "meta": _meta(a, {m: v[2] for m, v in models.items()}), "models": {}}
     for m, (tok, model, _) in models.items():
-        res["models"][m] = explain(tok, model, a.text, a.n_steps, a.internal_batch_size)
+        res["models"][m] = explain(tok, model, a.text, a.n_steps, a.internal_batch_size, a.tol, a.max_steps)
     tops = {m: top_tokens([r], top_k=a.top_k, min_df=1) for m, r in res["models"].items()}
     res["overlap"] = overlap(tops)
     _dump(res, out / f"ig_post_{re.sub(r'[^A-Za-z0-9_-]', '_', a.id)}.json")
@@ -225,7 +257,7 @@ def run_corpus(a, models, out):
     for m, (tok, model, _) in models.items():
         recs = []
         for pid, text, y in zip(ids, df.text.astype(str), labels):
-            r = explain(tok, model, text, a.n_steps, a.internal_batch_size)
+            r = explain(tok, model, text, a.n_steps, a.internal_batch_size, a.tol, a.max_steps)
             r.update(id=pid, label=None if y is None or pd.isna(y) else int(y)); recs.append(r)
         nc = [r for r in recs if r["pred_label"] == 0]
         target = recs if a.all_posts else nc
@@ -249,7 +281,8 @@ def main(argv=None):
         p = sub.add_parser(name)
         p.add_argument("--models", nargs="+", default=NAMES, choices=NAMES)
         p.add_argument("--model-dir", nargs="*", default=[], help="override: name=path")
-        p.add_argument("--n-steps", type=int, default=50); p.add_argument("--internal-batch-size", type=int, default=16)
+        p.add_argument("--n-steps", type=int, default=DEFAULT_STEPS); p.add_argument("--internal-batch-size", type=int, default=16)
+        p.add_argument("--max-steps", type=int, default=MAX_STEPS); p.add_argument("--tol", type=float, default=TOL)
         p.add_argument("--top-k", type=int, default=20); p.add_argument("--out-dir", default=str(ROOT / "results"))
     sub.choices["post"].add_argument("--text", required=True)
     sub.choices["post"].add_argument("--id", default="post")

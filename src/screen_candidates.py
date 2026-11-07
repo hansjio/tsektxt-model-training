@@ -22,6 +22,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from profile_corpus import guess_language, TOK  # noqa: E402
 
 WINDOW = ("2022-02-08", "2022-05-09")
+MIN_WORDS = 10            # group rule: no post under 10 words (same as clean_annotations.py --min-words)
 TARGET_POSTS = (300, 500)   # Chapter III target size for the Taglish set
 # Election vocabulary: generic terms plus 2022 national candidates and common nicknames. Lower-case, matched as whole words.
 ELECTION = set("""halalan eleksyon election elections boto botante bumoto iboto vote votes voter voters voting comelec kandidato candidate
@@ -54,7 +55,7 @@ def screen(rows):
         newsy = r.get("source_type") == "news_outlet" or r.get("source_type") == "politician_or_official" or bool(NEWSY.search((r.get("source_account") or "") + " " + (r.get("url") or "")))
         reasons = []
         if not text: reasons.append("no_text")
-        elif n < 5: reasons.append("under_5_words")
+        elif n < MIN_WORDS: reasons.append(f"under_{MIN_WORDS}_words")
         if in_window == "no" or "OUTSIDE WINDOW" in (r.get("merge_notes") or ""): reasons.append("outside_window")
         if dup: reasons.append(f"duplicate_of_{dup}")
         drop = bool(reasons)

@@ -1,49 +1,49 @@
 {
   "rows_in": 811,
-  "drop": 147,
-  "check": 110,
-  "ready": 554,
-  "usable_ready_plus_check": 664,
+  "drop": 168,
+  "check": 96,
+  "ready": 547,
+  "usable_ready_plus_check": 643,
   "drop_reasons": {
+    "under_10_words": 74,
     "duplicate": 69,
     "no_text": 61,
-    "under_5_words": 27,
     "outside_window": 9
   },
   "check_reasons": {
-    "no_election_terms_found": 108,
-    "post_date_unknown": 3
+    "no_election_terms_found": 94,
+    "post_date_unknown": 2
   },
   "usable_by_length_bin": {
     "20_39": 331,
     "40_99": 203,
-    "under_20": 121,
+    "under_20": 100,
     "100_plus": 9
   },
   "usable_by_language_hint": {
-    "english": 263,
-    "filipino": 257,
-    "taglish": 122,
-    "unknown": 22
+    "english": 260,
+    "filipino": 253,
+    "taglish": 120,
+    "unknown": 10
   },
   "usable_by_platform": {
-    "x": 529,
-    "facebook": 135
+    "x": 523,
+    "facebook": 120
   },
   "usable_by_source_type": {
-    "unknown": 210,
+    "unknown": 192,
     "news_outlet": 186,
-    "ordinary_user": 104,
-    "public_figure_or_influencer": 84,
-    "politician_or_official": 65,
+    "ordinary_user": 103,
+    "public_figure_or_influencer": 83,
+    "politician_or_official": 64,
     "page_or_group": 15
   },
-  "usable_with_factcheck_link": 214,
-  "usable_with_credible_hint": 247,
+  "usable_with_factcheck_link": 196,
+  "usable_with_credible_hint": 246,
   "gaps": [
     "only 9 posts with 100+ words; the length comparison needs a long-form stratum (TASKS/05)",
-    "263 of 664 usable posts look English-only (heuristic); the study is about Taglish/Tagalog, so confirm language_pattern or collect more Taglish",
-    "108 usable posts have no election word or candidate name; check they are about the 2022 election"
+    "260 of 643 usable posts look English-only (heuristic); the study is about Taglish/Tagalog, so confirm language_pattern or collect more Taglish",
+    "94 usable posts have no election word or candidate name; check they are about the 2022 election"
   ],
   "note": "Hints only. Labels are assigned by two human annotators; nothing here is a label or a model score."
 }

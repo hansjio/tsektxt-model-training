@@ -58,7 +58,7 @@ after cleaning (16,283 credible, 9,069 not credible; about 64% / 36%).
 | Validation (15%) | 3,803 | 2,443 | 1,360 |
 | Test (15%) | 3,803 | 2,442 | 1,361 |
 
-Row counts: the two source datasets total 25,668 rows; the combined file had 25,398 (270 rows were dropped at the merge step, before the cleaning script, and were not logged); the cleaning script then removed 46, leaving 25,352 (`results/cleaning_report.json`). Language mix of the 25,352 training articles: 21,295 English, 2,622 Tagalog, 1,435 mixed (lingua detector, English vs Tagalog only; `results/language_id_train.json`).
+Row counts: the two source datasets total 25,664 rows; the combined file had 25,398 (266 rows were dropped at the merge step, before the cleaning script, and were not logged); the cleaning script then removed 46, leaving 25,352 (`results/cleaning_report.json`). Language mix of the 25,352 training articles: 21,295 English, 2,622 Tagalog, 1,435 mixed (lingua detector, English vs Tagalog only; `results/language_id_train.json`).
 
 Cleaning: text-encoding repair (ftfy), removal of HTML and URLs, whitespace normalisation, removal of texts under 10 words,
 and removal of exact/near-duplicates and duplicates with conflicting labels (21,088 of 25,398 rows were modified; 46 removed). Splits are stratified, seed 42, and identical for all three models.

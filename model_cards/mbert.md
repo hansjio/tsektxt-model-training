@@ -1,5 +1,5 @@
 ---
-license: cc-by-nc-4.0
+license: cc-by-sa-4.0
 base_model: bert-base-multilingual-cased
 language:
 - tl
@@ -145,4 +145,4 @@ Training code and results: https://github.com/hansjio/tsektxt-model-training
 
 Authors: Clark Amba, Hans Jio Arca, Samantha Nicole Fernandez, Christian Dysar Nuñezca.
 
-Licence note: check that the CC BY-NC 4.0 label here is compatible with the licences of the base model and the two source datasets before wider reuse.
+Licence note: the base model `google-bert/bert-base-multilingual-cased` is Apache-2.0. These weights are released under CC BY-SA 4.0 to match the sibling RoBERTa-Tagalog model (whose base model requires share-alike). The two source datasets state no licence and were used for research; check their terms before wider or commercial reuse.

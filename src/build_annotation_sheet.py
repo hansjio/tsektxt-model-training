@@ -50,7 +50,7 @@ def first_url(s):
     return m.group(0) if m else ""
 
 
-def build(only_new=None):
+def build(only_new=None, include_drop=False, keep_english=False):
     rows = list(csv.DictReader(open(SRC, encoding="utf-8-sig", newline="")))
     scr = screen(rows)  # same order as rows (post_id is NOT unique: 3 ids are shared by 2 different posts, kept as is for the Sheet)
     lc = {}
@@ -83,9 +83,17 @@ def build(only_new=None):
         if c.get("note"):
             o["screen_reasons"] = "; ".join(filter(None, [o["screen_reasons"], c["note"]]))
             if o["screen"] == "ready": o["screen"] = "check"
+        # Group rule (dataset checklist): posts must be Taglish/Tagalog. English-only posts confirmed by the language check are dropped.
+        if o["language_check"] == "english" and not keep_english:
+            o["screen"] = "drop"; o["screen_reasons"] = "; ".join(filter(None, [o["screen_reasons"], "english_only"]))
         for c in TECH:
             if c not in o: o[c] = r.get(c, "")
         out.append(o)
+    # Rows screened 'drop' (under 10 words, duplicate, outside window, posts BY fact-checkers) can never enter the test set, so they are not
+    # sent to the annotators; they are kept in annotation_tab_dropped.csv for the record (use --include-drop to keep them in the tab).
+    dropped = [o for o in out if o["screen"] == "drop"]
+    if not include_drop:
+        out = [o for o in out if o["screen"] != "drop"]
     # suggested_order: ready first, then credible_hint rows, then the rest; credible_hint rows lead inside each group
     tier = lambda o: 0 if o["screen"] == "ready" else 1 if o["credible_hint"] else 2
     out.sort(key=lambda o: (tier(o), not o["credible_hint"]))
@@ -102,6 +110,11 @@ def build(only_new=None):
            "annotator_columns": len(ANNOT), "technical_columns": len(TECH),
            "dates_outside_feb8_may9_2022_kept": sum(bool(o["post_date"]) and not ("2022-02-08" <= o["post_date"][:10] <= "2022-05-09") for o in out),
            "no_post_date": sum(not o["post_date"] for o in out)}
+    rep["dropped_not_sent_to_annotators"] = 0 if include_drop else len(dropped)
+    rep["dropped_reasons"] = dict(Counter(x.split("_of_")[0] for o in dropped for x in o["screen_reasons"].split("; ") if x))
+    drop_path = out_path.with_name(out_path.stem.replace("_import", "") + "_dropped.csv")
+    with open(drop_path, "w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, cols); w.writeheader(); w.writerows(dropped)
     out_path.with_suffix(".report.json").write_text(json.dumps(rep, indent=2), encoding="utf-8")
     print(json.dumps(rep, indent=2))
 
@@ -109,4 +122,7 @@ def build(only_new=None):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--only-new", metavar="SHEET_EXPORT.csv", help="CSV export of the Sheet tab; write only posts whose post_id is not in it")
-    build(ap.parse_args().only_new)
+    ap.add_argument("--include-drop", action="store_true", help="also put rows screened 'drop' in the tab (default: separate file)")
+    ap.add_argument("--keep-english", action="store_true", help="do not drop posts the language check confirmed as English-only")
+    a = ap.parse_args()
+    build(a.only_new, a.include_drop, a.keep_english)

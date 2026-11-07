@@ -1,49 +1,50 @@
 {
-  "rows_in": 811,
-  "drop": 168,
-  "check": 96,
-  "ready": 547,
-  "usable_ready_plus_check": 643,
+  "rows_in": 895,
+  "drop": 194,
+  "check": 94,
+  "ready": 607,
+  "usable_ready_plus_check": 701,
   "drop_reasons": {
     "under_10_words": 74,
-    "duplicate": 69,
+    "duplicate": 70,
+    "post_by_factchecker": 66,
     "no_text": 61,
     "outside_window": 9
   },
   "check_reasons": {
-    "no_election_terms_found": 94,
+    "no_election_terms_found": 92,
     "post_date_unknown": 2
   },
   "usable_by_length_bin": {
-    "20_39": 331,
-    "40_99": 203,
-    "under_20": 100,
-    "100_plus": 9
+    "20_39": 376,
+    "40_99": 225,
+    "under_20": 98,
+    "100_plus": 2
   },
   "usable_by_language_hint": {
-    "english": 260,
-    "filipino": 253,
-    "taglish": 120,
+    "filipino": 297,
+    "english": 257,
+    "taglish": 137,
     "unknown": 10
   },
   "usable_by_platform": {
-    "x": 523,
-    "facebook": 120
+    "x": 592,
+    "facebook": 109
   },
   "usable_by_source_type": {
-    "unknown": 192,
-    "news_outlet": 186,
-    "ordinary_user": 103,
-    "public_figure_or_influencer": 83,
-    "politician_or_official": 64,
+    "news_outlet": 218,
+    "unknown": 181,
+    "ordinary_user": 127,
+    "public_figure_or_influencer": 85,
+    "politician_or_official": 75,
     "page_or_group": 15
   },
-  "usable_with_factcheck_link": 196,
-  "usable_with_credible_hint": 246,
+  "usable_with_factcheck_link": 185,
+  "usable_with_credible_hint": 289,
   "gaps": [
-    "only 9 posts with 100+ words; the length comparison needs a long-form stratum (TASKS/05)",
-    "260 of 643 usable posts look English-only (heuristic); the study is about Taglish/Tagalog, so confirm language_pattern or collect more Taglish",
-    "94 usable posts have no election word or candidate name; check they are about the 2022 election"
+    "only 2 posts with 100+ words; the length comparison needs a long-form stratum (TASKS/05)",
+    "257 of 701 usable posts look English-only (heuristic); the study is about Taglish/Tagalog, so confirm language_pattern or collect more Taglish",
+    "92 usable posts have no election word or candidate name; check they are about the 2022 election"
   ],
   "note": "Hints only. Labels are assigned by two human annotators; nothing here is a label or a model score."
 }

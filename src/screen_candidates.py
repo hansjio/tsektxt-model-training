@@ -32,6 +32,11 @@ marcos bbm bongbong robredo leni kakampink kakampinks pink lacson ping moreno is
 pangilinan kiko sara inday duterte uniteam leody abella mangondato gonzales ong""".split())
 NEWSY = re.compile(r"abs-?cbn|gmanews|gmanetwork|inquirer|rappler|philstar|cnnphilippines|manilabulletin|news5|pna\.gov|comelec|"
                    r"bbc|reuters|mindanews|interaksyon|sunstar|abante|bombo|dzrh|dzmm|teleradyo|pcij", re.I)
+# Posts BY fact-checkers are debunks, not the posts being checked; the briefs exclude them (they would all be 'credible'
+# fact-check text, not organic posts). Matched on the account / URL, plus fact-check headers at the start of the text.
+FACTCHECKER = re.compile(r"/(ALERTayo|2021ABKD|verafiles|tsekph|FactCheckPhils|rapplerdotcom/fact|AFPFactCheck|factsfirstph)\b|"
+                         r"^(ALERTayo|2021ABKD|verafiles|tsekph|FactCheckPhils|AFPFactCheck|factsfirstph)$", re.I)
+FACTCHECK_HEADER = re.compile(r"^\s*(LET'?S FACT-?CHECK|FACT-?CHECK\s*#|FACT CHECK:|TOTOO O HINDI\?)", re.I)
 
 
 def norm(t):
@@ -58,6 +63,8 @@ def screen(rows):
         elif n < MIN_WORDS: reasons.append(f"under_{MIN_WORDS}_words")
         if in_window == "no" or "OUTSIDE WINDOW" in (r.get("merge_notes") or ""): reasons.append("outside_window")
         if dup: reasons.append(f"duplicate_of_{dup}")
+        if FACTCHECKER.search(r.get("source_account") or "") or FACTCHECKER.search(r.get("url") or "") or FACTCHECK_HEADER.search(text):
+            reasons.append("post_by_factchecker")
         drop = bool(reasons)
         if not drop:
             if in_window == "unknown": reasons.append("post_date_unknown")

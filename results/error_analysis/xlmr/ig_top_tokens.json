@@ -1,0 +1,288 @@
+{
+  "meta": {
+    "created": "2026-11-07 14:58:06",
+    "max_length": 128,
+    "n_steps": 100,
+    "max_steps": 800,
+    "tol": 0.05,
+    "model_paths": {
+      "xlmr": "hansjio/tsektxt-xlmr"
+    },
+    "device": "cuda",
+    "notes": [
+      "Attribution target: logit(not_credible) - logit(credible); positive = toward not credible.",
+      "Baseline: pad-token embeddings at every non-special position.",
+      "IG shows what each model relies on, not ground truth; labels follow the source (fact-checker / outlet).",
+      "Single training seed per model; attributions can change across seeds."
+    ],
+    "csv": "data/processed/errors_xlmr.csv",
+    "ranked_on": "all posts"
+  },
+  "counts": {
+    "xlmr": {
+      "n_posts": 24,
+      "n_pred_not_credible": 12
+    }
+  },
+  "completeness": {
+    "xlmr": {
+      "n": 24,
+      "rel_error_mean": 0.0168936254135213,
+      "rel_error_median": 0.014204142449265836,
+      "rel_error_max": 0.046850093145440704,
+      "share_within_0.05": 1.0,
+      "tolerance": 0.05
+    }
+  },
+  "top_tokens": {
+    "xlmr": {
+      "n_posts": 24,
+      "min_df": 1,
+      "top_k": 20,
+      "toward_not_credible": [
+        {
+          "word": "duterte",
+          "sum_attr": 0.20596353636785933,
+          "mean_attr": 0.04119270727357187,
+          "doc_freq": 5
+        },
+        {
+          "word": "—",
+          "sum_attr": 0.1887738963170876,
+          "mean_attr": 0.1887738963170876,
+          "doc_freq": 1
+        },
+        {
+          "word": "canada's",
+          "sum_attr": 0.16759905391598567,
+          "mean_attr": 0.16759905391598567,
+          "doc_freq": 1
+        },
+        {
+          "word": "transport.today",
+          "sum_attr": 0.16555166970898083,
+          "mean_attr": 0.16555166970898083,
+          "doc_freq": 1
+        },
+        {
+          "word": "that",
+          "sum_attr": 0.16195968628934757,
+          "mean_attr": 0.012458437406872889,
+          "doc_freq": 13
+        },
+        {
+          "word": "dutertehome/news/nation/'unscrupulous",
+          "sum_attr": 0.13144967863598253,
+          "mean_attr": 0.13144967863598253,
+          "doc_freq": 1
+        },
+        {
+          "word": "filipinos",
+          "sum_attr": 0.11867817840571301,
+          "mean_attr": 0.11867817840571301,
+          "doc_freq": 1
+        },
+        {
+          "word": "winning",
+          "sum_attr": 0.11375634803855564,
+          "mean_attr": 0.05687817401927782,
+          "doc_freq": 2
+        },
+        {
+          "word": "yet.\"today",
+          "sum_attr": 0.10659238931749816,
+          "mean_attr": 0.10659238931749816,
+          "doc_freq": 1
+        },
+        {
+          "word": "mabilog",
+          "sum_attr": 0.09669092753639676,
+          "mean_attr": 0.09669092753639676,
+          "doc_freq": 1
+        },
+        {
+          "word": "mega",
+          "sum_attr": 0.08813295295381825,
+          "mean_attr": 0.08813295295381825,
+          "doc_freq": 1
+        },
+        {
+          "word": "ito",
+          "sum_attr": 0.08781125595599144,
+          "mean_attr": 0.029270418651997147,
+          "doc_freq": 3
+        },
+        {
+          "word": "pamatong",
+          "sum_attr": 0.08720487494276147,
+          "mean_attr": 0.08720487494276147,
+          "doc_freq": 1
+        },
+        {
+          "word": "in",
+          "sum_attr": 0.08258276422779749,
+          "mean_attr": 0.006881897018983125,
+          "doc_freq": 12
+        },
+        {
+          "word": "pnp",
+          "sum_attr": 0.08229574458512431,
+          "mean_attr": 0.08229574458512431,
+          "doc_freq": 1
+        },
+        {
+          "word": "potential",
+          "sum_attr": 0.08073641662981648,
+          "mean_attr": 0.08073641662981648,
+          "doc_freq": 1
+        },
+        {
+          "word": "6/58",
+          "sum_attr": 0.07528042183826517,
+          "mean_attr": 0.07528042183826517,
+          "doc_freq": 1
+        },
+        {
+          "word": "not",
+          "sum_attr": 0.07504518510099313,
+          "mean_attr": 0.018761296275248283,
+          "doc_freq": 4
+        },
+        {
+          "word": "pamamayagpag",
+          "sum_attr": 0.07499608442371454,
+          "mean_attr": 0.07499608442371454,
+          "doc_freq": 1
+        },
+        {
+          "word": "at",
+          "sum_attr": 0.06835713067343477,
+          "mean_attr": 0.0068357130673434765,
+          "doc_freq": 10
+        }
+      ],
+      "toward_credible": [
+        {
+          "word": "said",
+          "sum_attr": -0.4290750438997342,
+          "mean_attr": -0.04767500487774825,
+          "doc_freq": 9
+        },
+        {
+          "word": "ng",
+          "sum_attr": -0.2437373963281475,
+          "mean_attr": -0.034819628046878215,
+          "doc_freq": 7
+        },
+        {
+          "word": "ayon",
+          "sum_attr": -0.21408706433717514,
+          "mean_attr": -0.10704353216858757,
+          "doc_freq": 2
+        },
+        {
+          "word": "na",
+          "sum_attr": -0.17685426496593012,
+          "mean_attr": -0.025264894995132875,
+          "doc_freq": 7
+        },
+        {
+          "word": "sa",
+          "sum_attr": -0.17578082138948276,
+          "mean_attr": -0.021972602673685344,
+          "doc_freq": 8
+        },
+        {
+          "word": "plow,\"photo",
+          "sum_attr": -0.16575325687651227,
+          "mean_attr": -0.16575325687651227,
+          "doc_freq": 1
+        },
+        {
+          "word": "city",
+          "sum_attr": -0.16243147645653122,
+          "mean_attr": -0.05414382548551041,
+          "doc_freq": 3
+        },
+        {
+          "word": "the",
+          "sum_attr": -0.14567960167183297,
+          "mean_attr": -0.007667347456412262,
+          "doc_freq": 19
+        },
+        {
+          "word": "of",
+          "sum_attr": -0.13896621376034768,
+          "mean_attr": -0.007720345208908204,
+          "doc_freq": 18
+        },
+        {
+          "word": "president",
+          "sum_attr": -0.13609929791751965,
+          "mean_attr": -0.02268321631958661,
+          "doc_freq": 6
+        },
+        {
+          "word": "because",
+          "sum_attr": -0.13386883341381184,
+          "mean_attr": -0.04462294447127061,
+          "doc_freq": 3
+        },
+        {
+          "word": "saying",
+          "sum_attr": -0.1284326419680531,
+          "mean_attr": -0.0428108806560177,
+          "doc_freq": 3
+        },
+        {
+          "word": "ibigay",
+          "sum_attr": -0.12021452673850158,
+          "mean_attr": -0.12021452673850158,
+          "doc_freq": 1
+        },
+        {
+          "word": "on",
+          "sum_attr": -0.11539127096992588,
+          "mean_attr": -0.008876251613071222,
+          "doc_freq": 13
+        },
+        {
+          "word": "post",
+          "sum_attr": -0.1076592548051461,
+          "mean_attr": -0.05382962740257305,
+          "doc_freq": 2
+        },
+        {
+          "word": "yung",
+          "sum_attr": -0.10482026199070107,
+          "mean_attr": -0.10482026199070107,
+          "doc_freq": 1
+        },
+        {
+          "word": "p.m",
+          "sum_attr": -0.10401610641799491,
+          "mean_attr": -0.10401610641799491,
+          "doc_freq": 1
+        },
+        {
+          "word": "si",
+          "sum_attr": -0.1031022265732151,
+          "mean_attr": -0.02062044531464302,
+          "doc_freq": 5
+        },
+        {
+          "word": "fantastica",
+          "sum_attr": -0.10193055442644293,
+          "mean_attr": -0.10193055442644293,
+          "doc_freq": 1
+        },
+        {
+          "word": "2017",
+          "sum_attr": -0.10183587271692038,
+          "mean_attr": -0.05091793635846019,
+          "doc_freq": 2
+        }
+      ]
+    }
+  }
+}

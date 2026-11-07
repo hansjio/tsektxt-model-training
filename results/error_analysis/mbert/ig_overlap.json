@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "created": "2026-11-07 14:56:05",
+    "max_length": 128,
+    "n_steps": 100,
+    "max_steps": 800,
+    "tol": 0.05,
+    "model_paths": {
+      "mbert": "hansjio/tsektxt-mbert"
+    },
+    "device": "cuda",
+    "notes": [
+      "Attribution target: logit(not_credible) - logit(credible); positive = toward not credible.",
+      "Baseline: pad-token embeddings at every non-special position.",
+      "IG shows what each model relies on, not ground truth; labels follow the source (fact-checker / outlet).",
+      "Single training seed per model; attributions can change across seeds."
+    ],
+    "csv": "data/processed/errors_mbert.csv",
+    "ranked_on": "all posts"
+  },
+  "top_k_sets": {
+    "mbert": [
+      "gobyerno",
+      "santillan",
+      "ride.\"some",
+      "don't",
+      "murder.so",
+      "now",
+      "former",
+      "hours.here's",
+      "philippines",
+      "it",
+      "there",
+      "netizens",
+      "that",
+      "ng",
+      "philippine",
+      "cavite.this",
+      "words",
+      "dobermans",
+      "?",
+      "isa"
+    ]
+  },
+  "pairwise": {},
+  "shared_by_all": [
+    "?",
+    "cavite.this",
+    "dobermans",
+    "don't",
+    "former",
+    "gobyerno",
+    "hours.here's",
+    "isa",
+    "it",
+    "murder.so",
+    "netizens",
+    "ng",
+    "now",
+    "philippine",
+    "philippines",
+    "ride.\"some",
+    "santillan",
+    "that",
+    "there",
+    "words"
+  ],
+  "per_post_top5": {}
+}

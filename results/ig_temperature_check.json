@@ -1,0 +1,26 @@
+{
+  "note": "IG with logits/T vs raw; fixed 100 steps; internal test sample",
+  "models": {
+    "roberta-tagalog": {
+      "T": 1.9681,
+      "n_posts": 20,
+      "identical_top10_word_order": 20,
+      "identical_prediction": 20,
+      "max_relative_deviation_of_attr_times_T": 0.021184
+    },
+    "mbert": {
+      "T": 1.361,
+      "n_posts": 20,
+      "identical_top10_word_order": 20,
+      "identical_prediction": 20,
+      "max_relative_deviation_of_attr_times_T": 0.005604
+    },
+    "xlmr": {
+      "T": 1.8441,
+      "n_posts": 20,
+      "identical_top10_word_order": 20,
+      "identical_prediction": 20,
+      "max_relative_deviation_of_attr_times_T": 0.000498
+    }
+  }
+}

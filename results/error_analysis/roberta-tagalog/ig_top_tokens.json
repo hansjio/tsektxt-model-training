@@ -1,0 +1,288 @@
+{
+  "meta": {
+    "created": "2026-11-07 14:55:09",
+    "max_length": 128,
+    "n_steps": 100,
+    "max_steps": 800,
+    "tol": 0.05,
+    "model_paths": {
+      "roberta-tagalog": "hansjio/tsektxt-roberta-tagalog"
+    },
+    "device": "cuda",
+    "notes": [
+      "Attribution target: logit(not_credible) - logit(credible); positive = toward not credible.",
+      "Baseline: pad-token embeddings at every non-special position.",
+      "IG shows what each model relies on, not ground truth; labels follow the source (fact-checker / outlet).",
+      "Single training seed per model; attributions can change across seeds."
+    ],
+    "csv": "data/processed/errors_roberta-tagalog.csv",
+    "ranked_on": "all posts"
+  },
+  "counts": {
+    "roberta-tagalog": {
+      "n_posts": 24,
+      "n_pred_not_credible": 12
+    }
+  },
+  "completeness": {
+    "roberta-tagalog": {
+      "n": 24,
+      "rel_error_mean": 0.0073778339582013346,
+      "rel_error_median": 0.0020854152992381856,
+      "rel_error_max": 0.049367452020868605,
+      "share_within_0.05": 1.0,
+      "tolerance": 0.05
+    }
+  },
+  "top_tokens": {
+    "roberta-tagalog": {
+      "n_posts": 24,
+      "min_df": 1,
+      "top_k": 20,
+      "toward_not_credible": [
+        {
+          "word": "duterte",
+          "sum_attr": 0.4572571666886193,
+          "mean_attr": 0.07620952778143655,
+          "doc_freq": 6
+        },
+        {
+          "word": "that",
+          "sum_attr": 0.3321762764335666,
+          "mean_attr": 0.01845423757964259,
+          "doc_freq": 18
+        },
+        {
+          "word": "update)the",
+          "sum_attr": 0.21491294681157594,
+          "mean_attr": 0.21491294681157594,
+          "doc_freq": 1
+        },
+        {
+          "word": "is",
+          "sum_attr": 0.19794305134528825,
+          "mean_attr": 0.016495254278774022,
+          "doc_freq": 12
+        },
+        {
+          "word": "some",
+          "sum_attr": 0.17490976510333442,
+          "mean_attr": 0.17490976510333442,
+          "doc_freq": 1
+        },
+        {
+          "word": "rodrigo",
+          "sum_attr": 0.14599221374133856,
+          "mean_attr": 0.048664071247112854,
+          "doc_freq": 3
+        },
+        {
+          "word": "once",
+          "sum_attr": 0.13814442614825415,
+          "mean_attr": 0.13814442614825415,
+          "doc_freq": 1
+        },
+        {
+          "word": "are",
+          "sum_attr": 0.13635644911913491,
+          "mean_attr": 0.022726074853189154,
+          "doc_freq": 6
+        },
+        {
+          "word": "—",
+          "sum_attr": 0.13186165991687065,
+          "mean_attr": 0.13186165991687065,
+          "doc_freq": 1
+        },
+        {
+          "word": "today",
+          "sum_attr": 0.13090575869252496,
+          "mean_attr": 0.13090575869252496,
+          "doc_freq": 1
+        },
+        {
+          "word": "opposite.\"fortunately",
+          "sum_attr": 0.12954502006907523,
+          "mean_attr": 0.12954502006907523,
+          "doc_freq": 1
+        },
+        {
+          "word": "away…\"the",
+          "sum_attr": 0.12485328325684704,
+          "mean_attr": 0.12485328325684704,
+          "doc_freq": 1
+        },
+        {
+          "word": "ng",
+          "sum_attr": 0.1241838779264183,
+          "mean_attr": 0.02483677558528366,
+          "doc_freq": 5
+        },
+        {
+          "word": "fact",
+          "sum_attr": 0.11982494843319408,
+          "mean_attr": 0.05991247421659704,
+          "doc_freq": 2
+        },
+        {
+          "word": "ang",
+          "sum_attr": 0.11538232536793902,
+          "mean_attr": 0.03846077512264634,
+          "doc_freq": 3
+        },
+        {
+          "word": "malacañang",
+          "sum_attr": 0.11453981081197132,
+          "mean_attr": 0.05726990540598566,
+          "doc_freq": 2
+        },
+        {
+          "word": "senator",
+          "sum_attr": 0.11353827624708085,
+          "mean_attr": 0.11353827624708085,
+          "doc_freq": 1
+        },
+        {
+          "word": "bs",
+          "sum_attr": 0.10845158354933714,
+          "mean_attr": 0.10845158354933714,
+          "doc_freq": 1
+        },
+        {
+          "word": "sa",
+          "sum_attr": 0.09769608245808421,
+          "mean_attr": 0.016282680409680703,
+          "doc_freq": 6
+        },
+        {
+          "word": "davao",
+          "sum_attr": 0.09690002734256031,
+          "mean_attr": 0.09690002734256031,
+          "doc_freq": 1
+        }
+      ],
+      "toward_credible": [
+        {
+          "word": "to",
+          "sum_attr": -0.7938622512626785,
+          "mean_attr": -0.037802964345841836,
+          "doc_freq": 21
+        },
+        {
+          "word": "said",
+          "sum_attr": -0.43049293673194056,
+          "mean_attr": -0.061498990961705795,
+          "doc_freq": 7
+        },
+        {
+          "word": "in",
+          "sum_attr": -0.3970514705447509,
+          "mean_attr": -0.018907212883083373,
+          "doc_freq": 21
+        },
+        {
+          "word": "a",
+          "sum_attr": -0.3305277822194643,
+          "mean_attr": -0.016526389110973212,
+          "doc_freq": 20
+        },
+        {
+          "word": "on",
+          "sum_attr": -0.310440332280835,
+          "mean_attr": -0.025870027690069585,
+          "doc_freq": 12
+        },
+        {
+          "word": "for",
+          "sum_attr": -0.21411637750211582,
+          "mean_attr": -0.023790708611346204,
+          "doc_freq": 9
+        },
+        {
+          "word": "arrangements",
+          "sum_attr": -0.15152439351111602,
+          "mean_attr": -0.15152439351111602,
+          "doc_freq": 1
+        },
+        {
+          "word": "alab",
+          "sum_attr": -0.14608347842688357,
+          "mean_attr": -0.14608347842688357,
+          "doc_freq": 1
+        },
+        {
+          "word": "film,\"bituing",
+          "sum_attr": -0.11903497233126517,
+          "mean_attr": -0.11903497233126517,
+          "doc_freq": 1
+        },
+        {
+          "word": "response",
+          "sum_attr": -0.11438038966887759,
+          "mean_attr": -0.11438038966887759,
+          "doc_freq": 1
+        },
+        {
+          "word": "monday",
+          "sum_attr": -0.11171362663307749,
+          "mean_attr": -0.037237875544359166,
+          "doc_freq": 3
+        },
+        {
+          "word": "platform.\"i",
+          "sum_attr": -0.10020394416087915,
+          "mean_attr": -0.10020394416087915,
+          "doc_freq": 1
+        },
+        {
+          "word": "million",
+          "sum_attr": -0.0962465251326708,
+          "mean_attr": -0.0320821750442236,
+          "doc_freq": 3
+        },
+        {
+          "word": "province",
+          "sum_attr": -0.0929974613041726,
+          "mean_attr": -0.0464987306520863,
+          "doc_freq": 2
+        },
+        {
+          "word": "me",
+          "sum_attr": -0.07883145141632517,
+          "mean_attr": -0.07883145141632517,
+          "doc_freq": 1
+        },
+        {
+          "word": "ground.why",
+          "sum_attr": -0.07579276761938729,
+          "mean_attr": -0.07579276761938729,
+          "doc_freq": 1
+        },
+        {
+          "word": "guinea",
+          "sum_attr": -0.07327376185496312,
+          "mean_attr": -0.07327376185496312,
+          "doc_freq": 1
+        },
+        {
+          "word": "country.the",
+          "sum_attr": -0.07236301145297366,
+          "mean_attr": -0.07236301145297366,
+          "doc_freq": 1
+        },
+        {
+          "word": "metropolis.activist",
+          "sum_attr": -0.0708449491695999,
+          "mean_attr": -0.0708449491695999,
+          "doc_freq": 1
+        },
+        {
+          "word": "city",
+          "sum_attr": -0.06833976873161571,
+          "mean_attr": -0.017084942182903927,
+          "doc_freq": 4
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "temperatures": {
+    "roberta-tagalog": 1.9681,
+    "mbert": 1.361,
+    "xlmr": 1.8441
+  },
+  "fitted_on": "internal validation split (data/processed/val.csv)",
+  "objective": "negative log-likelihood",
+  "seed": 42,
+  "date": "2026-11-07",
+  "n_val": {
+    "roberta-tagalog": 3803,
+    "mbert": 3803,
+    "xlmr": 3803
+  },
+  "note": "Predictions are unchanged; only confidence values change. Never fitted on the Taglish set."
+}

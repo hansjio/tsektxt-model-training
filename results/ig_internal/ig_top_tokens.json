@@ -1,0 +1,812 @@
+{
+  "meta": {
+    "created": "2026-11-07 14:49:54",
+    "max_length": 128,
+    "n_steps": 100,
+    "max_steps": 800,
+    "tol": 0.05,
+    "model_paths": {
+      "roberta-tagalog": "hansjio/tsektxt-roberta-tagalog",
+      "mbert": "hansjio/tsektxt-mbert",
+      "xlmr": "hansjio/tsektxt-xlmr"
+    },
+    "device": "cuda",
+    "notes": [
+      "Attribution target: logit(not_credible) - logit(credible); positive = toward not credible.",
+      "Baseline: pad-token embeddings at every non-special position.",
+      "IG shows what each model relies on, not ground truth; labels follow the source (fact-checker / outlet).",
+      "Single training seed per model; attributions can change across seeds."
+    ],
+    "csv": "data/processed/ig_internal_sample.csv",
+    "ranked_on": "all posts"
+  },
+  "counts": {
+    "roberta-tagalog": {
+      "n_posts": 300,
+      "n_pred_not_credible": 109
+    },
+    "mbert": {
+      "n_posts": 300,
+      "n_pred_not_credible": 113
+    },
+    "xlmr": {
+      "n_posts": 300,
+      "n_pred_not_credible": 106
+    }
+  },
+  "completeness": {
+    "roberta-tagalog": {
+      "n": 300,
+      "rel_error_mean": 0.006475410582762487,
+      "rel_error_median": 0.0010337004405403466,
+      "rel_error_max": 0.04795390902555736,
+      "share_within_0.05": 1.0,
+      "tolerance": 0.05
+    },
+    "mbert": {
+      "n": 300,
+      "rel_error_mean": 0.000767728523268393,
+      "rel_error_median": 0.00025618448274416855,
+      "rel_error_max": 0.02121247556692581,
+      "share_within_0.05": 1.0,
+      "tolerance": 0.05
+    },
+    "xlmr": {
+      "n": 300,
+      "rel_error_mean": 0.03810179483025881,
+      "rel_error_median": 0.01615332648455552,
+      "rel_error_max": 5.394797594172201,
+      "share_within_0.05": 0.9766666666666667,
+      "tolerance": 0.05
+    }
+  },
+  "top_tokens": {
+    "roberta-tagalog": {
+      "n_posts": 300,
+      "min_df": 3,
+      "top_k": 20,
+      "toward_not_credible": [
+        {
+          "word": "ang",
+          "sum_attr": 2.9100181851045,
+          "mean_attr": 0.07657942592380264,
+          "doc_freq": 38
+        },
+        {
+          "word": "that",
+          "sum_attr": 2.6566947579906373,
+          "mean_attr": 0.016004185289100224,
+          "doc_freq": 166
+        },
+        {
+          "word": "duterte",
+          "sum_attr": 2.531445750289078,
+          "mean_attr": 0.03287591883492309,
+          "doc_freq": 77
+        },
+        {
+          "word": "ng",
+          "sum_attr": 2.213600999366653,
+          "mean_attr": 0.051479093008526815,
+          "doc_freq": 43
+        },
+        {
+          "word": "na",
+          "sum_attr": 1.7003373504767878,
+          "mean_attr": 0.0414716426945558,
+          "doc_freq": 41
+        },
+        {
+          "word": "is",
+          "sum_attr": 1.6917825645718403,
+          "mean_attr": 0.01642507344244505,
+          "doc_freq": 103
+        },
+        {
+          "word": "philippines",
+          "sum_attr": 1.653731147879465,
+          "mean_attr": 0.040334906045840606,
+          "doc_freq": 41
+        },
+        {
+          "word": "—",
+          "sum_attr": 1.455208916755677,
+          "mean_attr": 0.1455208916755677,
+          "doc_freq": 10
+        },
+        {
+          "word": "rodrigo",
+          "sum_attr": 1.2546867313806462,
+          "mean_attr": 0.025605851660829515,
+          "doc_freq": 49
+        },
+        {
+          "word": "at",
+          "sum_attr": 1.02434156706665,
+          "mean_attr": 0.008607912328291176,
+          "doc_freq": 119
+        },
+        {
+          "word": "adobo",
+          "sum_attr": 0.9769952084797058,
+          "mean_attr": 0.12212440105996322,
+          "doc_freq": 8
+        },
+        {
+          "word": "who",
+          "sum_attr": 0.8588754278837776,
+          "mean_attr": 0.017893238080912033,
+          "doc_freq": 48
+        },
+        {
+          "word": "mga",
+          "sum_attr": 0.8045411695725411,
+          "mean_attr": 0.0297978210952793,
+          "doc_freq": 27
+        },
+        {
+          "word": "this",
+          "sum_attr": 0.8019107378209586,
+          "mean_attr": 0.014068609435455414,
+          "doc_freq": 57
+        },
+        {
+          "word": "philippine",
+          "sum_attr": 0.8010586744432175,
+          "mean_attr": 0.01862927149867948,
+          "doc_freq": 43
+        },
+        {
+          "word": "u.s",
+          "sum_attr": 0.8010041152665796,
+          "mean_attr": 0.13350068587776326,
+          "doc_freq": 6
+        },
+        {
+          "word": "sa",
+          "sum_attr": 0.7221239797427113,
+          "mean_attr": 0.016047199549838027,
+          "doc_freq": 45
+        },
+        {
+          "word": "are",
+          "sum_attr": 0.6433683712275375,
+          "mean_attr": 0.012615066102500736,
+          "doc_freq": 51
+        },
+        {
+          "word": "aquino",
+          "sum_attr": 0.5770795110431598,
+          "mean_attr": 0.02623088686559817,
+          "doc_freq": 22
+        },
+        {
+          "word": "all",
+          "sum_attr": 0.5575667374807363,
+          "mean_attr": 0.015930478213735322,
+          "doc_freq": 35
+        }
+      ],
+      "toward_credible": [
+        {
+          "word": "to",
+          "sum_attr": -9.359331538949032,
+          "mean_attr": -0.04051658674869711,
+          "doc_freq": 231
+        },
+        {
+          "word": "on",
+          "sum_attr": -6.539143879899623,
+          "mean_attr": -0.03824060748479312,
+          "doc_freq": 171
+        },
+        {
+          "word": "said",
+          "sum_attr": -5.741526410011782,
+          "mean_attr": -0.050809968230192765,
+          "doc_freq": 113
+        },
+        {
+          "word": "in",
+          "sum_attr": -5.482988264841249,
+          "mean_attr": -0.02480990165086538,
+          "doc_freq": 221
+        },
+        {
+          "word": "of",
+          "sum_attr": -4.7937488241889685,
+          "mean_attr": -0.018799014996819484,
+          "doc_freq": 255
+        },
+        {
+          "word": "a",
+          "sum_attr": -4.392508793909792,
+          "mean_attr": -0.01987560540230675,
+          "doc_freq": 221
+        },
+        {
+          "word": "for",
+          "sum_attr": -2.7579749883469837,
+          "mean_attr": -0.019152604085742944,
+          "doc_freq": 144
+        },
+        {
+          "word": "was",
+          "sum_attr": -1.701820848415229,
+          "mean_attr": -0.014301015532901085,
+          "doc_freq": 119
+        },
+        {
+          "word": "the",
+          "sum_attr": -1.1230025291773142,
+          "mean_attr": -0.004010723318490408,
+          "doc_freq": 280
+        },
+        {
+          "word": "and",
+          "sum_attr": -0.9378621635554883,
+          "mean_attr": -0.004113430541910036,
+          "doc_freq": 228
+        },
+        {
+          "word": "as",
+          "sum_attr": -0.9185224046083204,
+          "mean_attr": -0.009469303140291962,
+          "doc_freq": 97
+        },
+        {
+          "word": "daw",
+          "sum_attr": -0.7240407437169378,
+          "mean_attr": -0.10343439195956254,
+          "doc_freq": 7
+        },
+        {
+          "word": "by",
+          "sum_attr": -0.7219168394822957,
+          "mean_attr": -0.0065628803589299605,
+          "doc_freq": 110
+        },
+        {
+          "word": "saturday",
+          "sum_attr": -0.6705867336848843,
+          "mean_attr": -0.039446278452052015,
+          "doc_freq": 17
+        },
+        {
+          "word": "ayon",
+          "sum_attr": -0.612430801934976,
+          "mean_attr": -0.047110061687305846,
+          "doc_freq": 13
+        },
+        {
+          "word": "police",
+          "sum_attr": -0.516914675798379,
+          "mean_attr": -0.019144987992532555,
+          "doc_freq": 27
+        },
+        {
+          "word": "office",
+          "sum_attr": -0.5101694996662239,
+          "mean_attr": -0.018220339273793712,
+          "doc_freq": 28
+        },
+        {
+          "word": "president",
+          "sum_attr": -0.5078004351460542,
+          "mean_attr": -0.005078004351460542,
+          "doc_freq": 100
+        },
+        {
+          "word": "rep",
+          "sum_attr": -0.5068644619349676,
+          "mean_attr": -0.04607858744863342,
+          "doc_freq": 11
+        },
+        {
+          "word": "friday",
+          "sum_attr": -0.505342355436233,
+          "mean_attr": -0.025267117771811648,
+          "doc_freq": 20
+        }
+      ]
+    },
+    "mbert": {
+      "n_posts": 300,
+      "min_df": 3,
+      "top_k": 20,
+      "toward_not_credible": [
+        {
+          "word": "that",
+          "sum_attr": 1.5937418277803832,
+          "mean_attr": 0.009717937974270629,
+          "doc_freq": 164
+        },
+        {
+          "word": "adobo",
+          "sum_attr": 1.1925267503447152,
+          "mean_attr": 0.1490658437930894,
+          "doc_freq": 8
+        },
+        {
+          "word": "philippines",
+          "sum_attr": 1.1917189659762955,
+          "mean_attr": 0.029792974149407386,
+          "doc_freq": 40
+        },
+        {
+          "word": "u.s",
+          "sum_attr": 0.9183664552481766,
+          "mean_attr": 0.13119520789259667,
+          "doc_freq": 7
+        },
+        {
+          "word": "ng",
+          "sum_attr": 0.910168366791026,
+          "mean_attr": 0.021670675399786333,
+          "doc_freq": 42
+        },
+        {
+          "word": "na",
+          "sum_attr": 0.5993148123572022,
+          "mean_attr": 0.014617434447736638,
+          "doc_freq": 41
+        },
+        {
+          "word": "leni",
+          "sum_attr": 0.5865438241497366,
+          "mean_attr": 0.04511875570382589,
+          "doc_freq": 13
+        },
+        {
+          "word": "so",
+          "sum_attr": 0.46987616378398445,
+          "mean_attr": 0.031325077585598965,
+          "doc_freq": 15
+        },
+        {
+          "word": "all",
+          "sum_attr": 0.4504688502807274,
+          "mean_attr": 0.0132490838317861,
+          "doc_freq": 34
+        },
+        {
+          "word": "chronicles",
+          "sum_attr": 0.4442692050902591,
+          "mean_attr": 0.055533650636282385,
+          "doc_freq": 8
+        },
+        {
+          "word": "it's",
+          "sum_attr": 0.4227564252383737,
+          "mean_attr": 0.04227564252383737,
+          "doc_freq": 10
+        },
+        {
+          "word": "aquino",
+          "sum_attr": 0.3913173513593191,
+          "mean_attr": 0.019565867567965956,
+          "doc_freq": 20
+        },
+        {
+          "word": "noynoy",
+          "sum_attr": 0.3891985524634937,
+          "mean_attr": 0.09729963811587343,
+          "doc_freq": 4
+        },
+        {
+          "word": "filipino",
+          "sum_attr": 0.38846683768025186,
+          "mean_attr": 0.02285099045177952,
+          "doc_freq": 17
+        },
+        {
+          "word": "trump",
+          "sum_attr": 0.37145813106578085,
+          "mean_attr": 0.03376892100598008,
+          "doc_freq": 11
+        },
+        {
+          "word": "netizens",
+          "sum_attr": 0.37049890273207425,
+          "mean_attr": 0.06174981712201238,
+          "doc_freq": 6
+        },
+        {
+          "word": "philippine",
+          "sum_attr": 0.363763846971607,
+          "mean_attr": 0.008661043975514452,
+          "doc_freq": 42
+        },
+        {
+          "word": "nito",
+          "sum_attr": 0.3480332388224687,
+          "mean_attr": 0.06960664776449374,
+          "doc_freq": 5
+        },
+        {
+          "word": "republican",
+          "sum_attr": 0.3403499781219666,
+          "mean_attr": 0.0567249963536611,
+          "doc_freq": 6
+        },
+        {
+          "word": "driver",
+          "sum_attr": 0.32779803545605796,
+          "mean_attr": 0.08194950886401449,
+          "doc_freq": 4
+        }
+      ],
+      "toward_credible": [
+        {
+          "word": "said",
+          "sum_attr": -7.079884613113421,
+          "mean_attr": -0.06210425099222299,
+          "doc_freq": 114
+        },
+        {
+          "word": "on",
+          "sum_attr": -5.693050934982749,
+          "mean_attr": -0.03329269552621491,
+          "doc_freq": 171
+        },
+        {
+          "word": "of",
+          "sum_attr": -4.644294937905034,
+          "mean_attr": -0.01821292132511778,
+          "doc_freq": 255
+        },
+        {
+          "word": "in",
+          "sum_attr": -3.8073112674665204,
+          "mean_attr": -0.017150050754353694,
+          "doc_freq": 222
+        },
+        {
+          "word": "to",
+          "sum_attr": -3.4873048600009042,
+          "mean_attr": -0.015295196754389931,
+          "doc_freq": 228
+        },
+        {
+          "word": "the",
+          "sum_attr": -2.983963845771585,
+          "mean_attr": -0.010811463209317336,
+          "doc_freq": 276
+        },
+        {
+          "word": "and",
+          "sum_attr": -2.3764516008548715,
+          "mean_attr": -0.010515272570154298,
+          "doc_freq": 226
+        },
+        {
+          "word": "sen",
+          "sum_attr": -2.257400048141324,
+          "mean_attr": -0.13278823812596022,
+          "doc_freq": 17
+        },
+        {
+          "word": "a",
+          "sum_attr": -2.2309751917827954,
+          "mean_attr": -0.010233831154966951,
+          "doc_freq": 218
+        },
+        {
+          "word": "saturday",
+          "sum_attr": -1.7343005983103235,
+          "mean_attr": -0.09635003323946241,
+          "doc_freq": 18
+        },
+        {
+          "word": "monday",
+          "sum_attr": -1.615328847047199,
+          "mean_attr": -0.08076644235235994,
+          "doc_freq": 20
+        },
+        {
+          "word": "friday",
+          "sum_attr": -1.5757587230896528,
+          "mean_attr": -0.07878793615448264,
+          "doc_freq": 20
+        },
+        {
+          "word": "for",
+          "sum_attr": -1.330579145583683,
+          "mean_attr": -0.009240132955442244,
+          "doc_freq": 144
+        },
+        {
+          "word": "tuesday",
+          "sum_attr": -1.2496692358481531,
+          "mean_attr": -0.07810432724050957,
+          "doc_freq": 16
+        },
+        {
+          "word": "wednesday",
+          "sum_attr": -1.1751412578628693,
+          "mean_attr": -0.07834275052419129,
+          "doc_freq": 15
+        },
+        {
+          "word": "rep",
+          "sum_attr": -1.058932329635598,
+          "mean_attr": -0.09626657542141799,
+          "doc_freq": 11
+        },
+        {
+          "word": "thursday",
+          "sum_attr": -1.043383062944618,
+          "mean_attr": -0.08026023561112446,
+          "doc_freq": 13
+        },
+        {
+          "word": "as",
+          "sum_attr": -0.8702307069649672,
+          "mean_attr": -0.00887990517311191,
+          "doc_freq": 98
+        },
+        {
+          "word": "was",
+          "sum_attr": -0.8507804817730715,
+          "mean_attr": -0.0072716280493424915,
+          "doc_freq": 117
+        },
+        {
+          "word": "at",
+          "sum_attr": -0.8091904318083193,
+          "mean_attr": -0.006799919595027893,
+          "doc_freq": 119
+        }
+      ]
+    },
+    "xlmr": {
+      "n_posts": 300,
+      "min_df": 3,
+      "top_k": 20,
+      "toward_not_credible": [
+        {
+          "word": "—",
+          "sum_attr": 0.53523217851584,
+          "mean_attr": 0.053523217851584,
+          "doc_freq": 10
+        },
+        {
+          "word": "philippines",
+          "sum_attr": 0.43225750954555564,
+          "mean_attr": 0.010806437738638892,
+          "doc_freq": 40
+        },
+        {
+          "word": "aquino",
+          "sum_attr": 0.35564839253568165,
+          "mean_attr": 0.018718336449246403,
+          "doc_freq": 19
+        },
+        {
+          "word": "all",
+          "sum_attr": 0.34406570149419463,
+          "mean_attr": 0.010119579455711607,
+          "doc_freq": 34
+        },
+        {
+          "word": "it's",
+          "sum_attr": 0.3431647983364492,
+          "mean_attr": 0.03431647983364492,
+          "doc_freq": 10
+        },
+        {
+          "word": "trump",
+          "sum_attr": 0.3431523969507798,
+          "mean_attr": 0.03431523969507798,
+          "doc_freq": 10
+        },
+        {
+          "word": "senator",
+          "sum_attr": 0.33281213576248536,
+          "mean_attr": 0.0475445908232122,
+          "doc_freq": 7
+        },
+        {
+          "word": "u.s",
+          "sum_attr": 0.3254199293132008,
+          "mean_attr": 0.05423665488553347,
+          "doc_freq": 6
+        },
+        {
+          "word": "now",
+          "sum_attr": 0.3060498563410953,
+          "mean_attr": 0.017002769796727518,
+          "doc_freq": 18
+        },
+        {
+          "word": "presidential",
+          "sum_attr": 0.29139727216347744,
+          "mean_attr": 0.009713242405449247,
+          "doc_freq": 30
+        },
+        {
+          "word": "–",
+          "sum_attr": 0.2633544980631911,
+          "mean_attr": 0.06583862451579778,
+          "doc_freq": 4
+        },
+        {
+          "word": "that",
+          "sum_attr": 0.26060757675974144,
+          "mean_attr": 0.0015890705899984235,
+          "doc_freq": 164
+        },
+        {
+          "word": "today",
+          "sum_attr": 0.2595492366622619,
+          "mean_attr": 0.03707846238032313,
+          "doc_freq": 7
+        },
+        {
+          "word": "netizens",
+          "sum_attr": 0.23918669372719303,
+          "mean_attr": 0.04783733874543861,
+          "doc_freq": 5
+        },
+        {
+          "word": "below",
+          "sum_attr": 0.23442546433139705,
+          "mean_attr": 0.05860636608284926,
+          "doc_freq": 4
+        },
+        {
+          "word": "republican",
+          "sum_attr": 0.23135017946586245,
+          "mean_attr": 0.03855836324431041,
+          "doc_freq": 6
+        },
+        {
+          "word": "this",
+          "sum_attr": 0.22237966180914603,
+          "mean_attr": 0.00404326657834811,
+          "doc_freq": 55
+        },
+        {
+          "word": "his",
+          "sum_attr": 0.22001438659684927,
+          "mean_attr": 0.002933525154624657,
+          "doc_freq": 75
+        },
+        {
+          "word": "rodrigo",
+          "sum_attr": 0.2057992668600685,
+          "mean_attr": 0.0041999850379605816,
+          "doc_freq": 49
+        },
+        {
+          "word": "about",
+          "sum_attr": 0.190272666759415,
+          "mean_attr": 0.0055962549046886766,
+          "doc_freq": 34
+        }
+      ],
+      "toward_credible": [
+        {
+          "word": "said",
+          "sum_attr": -12.63588495481719,
+          "mean_attr": -0.114871681407429,
+          "doc_freq": 110
+        },
+        {
+          "word": "the",
+          "sum_attr": -5.275965302096933,
+          "mean_attr": -0.01904680614475427,
+          "doc_freq": 277
+        },
+        {
+          "word": "on",
+          "sum_attr": -4.142689294849124,
+          "mean_attr": -0.024226253186252183,
+          "doc_freq": 171
+        },
+        {
+          "word": "of",
+          "sum_attr": -2.64967529595802,
+          "mean_attr": -0.010431792503771733,
+          "doc_freq": 254
+        },
+        {
+          "word": "sen",
+          "sum_attr": -2.065166909657288,
+          "mean_attr": -0.12148040645042872,
+          "doc_freq": 17
+        },
+        {
+          "word": "a",
+          "sum_attr": -1.3890913800892088,
+          "mean_attr": -0.0063428830141059765,
+          "doc_freq": 219
+        },
+        {
+          "word": "ayon",
+          "sum_attr": -1.1260394787500998,
+          "mean_attr": -0.09383662322917498,
+          "doc_freq": 12
+        },
+        {
+          "word": "as",
+          "sum_attr": -0.9911221910196764,
+          "mean_attr": -0.010324189489788296,
+          "doc_freq": 96
+        },
+        {
+          "word": "for",
+          "sum_attr": -0.9374869094526517,
+          "mean_attr": -0.006555852513654907,
+          "doc_freq": 143
+        },
+        {
+          "word": "na",
+          "sum_attr": -0.8742982506115642,
+          "mean_attr": -0.02132434757589181,
+          "doc_freq": 41
+        },
+        {
+          "word": "ng",
+          "sum_attr": -0.8515060114434511,
+          "mean_attr": -0.0202739526534155,
+          "doc_freq": 42
+        },
+        {
+          "word": "in",
+          "sum_attr": -0.771138994994696,
+          "mean_attr": -0.0035211826255465567,
+          "doc_freq": 219
+        },
+        {
+          "word": "and",
+          "sum_attr": -0.7005692285901955,
+          "mean_attr": -0.003127541199063373,
+          "doc_freq": 224
+        },
+        {
+          "word": "president",
+          "sum_attr": -0.6745828331242085,
+          "mean_attr": -0.006883498297185801,
+          "doc_freq": 98
+        },
+        {
+          "word": "had",
+          "sum_attr": -0.5866800169961931,
+          "mean_attr": -0.01725529461753509,
+          "doc_freq": 34
+        },
+        {
+          "word": "sa",
+          "sum_attr": -0.5333767735790954,
+          "mean_attr": -0.011852817190646564,
+          "doc_freq": 45
+        },
+        {
+          "word": "to",
+          "sum_attr": -0.47255604673128265,
+          "mean_attr": -0.002063563522844029,
+          "doc_freq": 229
+        },
+        {
+          "word": "at",
+          "sum_attr": -0.4603073744047089,
+          "mean_attr": -0.003968167020730249,
+          "doc_freq": 116
+        },
+        {
+          "word": "saying",
+          "sum_attr": -0.42748453157793387,
+          "mean_attr": -0.053435566447241734,
+          "doc_freq": 8
+        },
+        {
+          "word": "has",
+          "sum_attr": -0.4268227732309466,
+          "mean_attr": -0.006370489152700695,
+          "doc_freq": 67
+        }
+      ]
+    }
+  }
+}

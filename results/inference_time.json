@@ -1,0 +1,39 @@
+{
+  "n_posts": 100,
+  "batch_size": 1,
+  "max_length": 128,
+  "gpu": "Tesla T4",
+  "cpu_threads": 1,
+  "models": {
+    "roberta-tagalog": {
+      "cuda": {
+        "median_ms": 15.6,
+        "p95_ms": 24.3
+      },
+      "cpu": {
+        "median_ms": 313.6,
+        "p95_ms": 430.1
+      }
+    },
+    "mbert": {
+      "cuda": {
+        "median_ms": 12.7,
+        "p95_ms": 18.1
+      },
+      "cpu": {
+        "median_ms": 329.1,
+        "p95_ms": 454.2
+      }
+    },
+    "xlmr": {
+      "cuda": {
+        "median_ms": 13.4,
+        "p95_ms": 19.2
+      },
+      "cpu": {
+        "median_ms": 329.9,
+        "p95_ms": 447.7
+      }
+    }
+  }
+}

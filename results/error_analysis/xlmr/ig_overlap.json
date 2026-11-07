@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "created": "2026-11-07 14:58:06",
+    "max_length": 128,
+    "n_steps": 100,
+    "max_steps": 800,
+    "tol": 0.05,
+    "model_paths": {
+      "xlmr": "hansjio/tsektxt-xlmr"
+    },
+    "device": "cuda",
+    "notes": [
+      "Attribution target: logit(not_credible) - logit(credible); positive = toward not credible.",
+      "Baseline: pad-token embeddings at every non-special position.",
+      "IG shows what each model relies on, not ground truth; labels follow the source (fact-checker / outlet).",
+      "Single training seed per model; attributions can change across seeds."
+    ],
+    "csv": "data/processed/errors_xlmr.csv",
+    "ranked_on": "all posts"
+  },
+  "top_k_sets": {
+    "xlmr": [
+      "duterte",
+      "—",
+      "canada's",
+      "transport.today",
+      "that",
+      "dutertehome/news/nation/'unscrupulous",
+      "filipinos",
+      "winning",
+      "yet.\"today",
+      "mabilog",
+      "mega",
+      "ito",
+      "pamatong",
+      "in",
+      "pnp",
+      "potential",
+      "6/58",
+      "not",
+      "pamamayagpag",
+      "at"
+    ]
+  },
+  "pairwise": {},
+  "shared_by_all": [
+    "6/58",
+    "at",
+    "canada's",
+    "duterte",
+    "dutertehome/news/nation/'unscrupulous",
+    "filipinos",
+    "in",
+    "ito",
+    "mabilog",
+    "mega",
+    "not",
+    "pamamayagpag",
+    "pamatong",
+    "pnp",
+    "potential",
+    "that",
+    "transport.today",
+    "winning",
+    "yet.\"today",
+    "—"
+  ],
+  "per_post_top5": {}
+}

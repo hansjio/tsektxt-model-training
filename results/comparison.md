@@ -11,14 +11,16 @@
 
 **McNemar (b = row-model right & col-model wrong; c = reverse)**
 
-| Pair | b | c | p-value | Significant (p<0.05) |
-|---|---|---|---|---|
-| roberta-tagalog vs mbert | 151 | 94 | 0.0003466 | yes |
-| roberta-tagalog vs xlmr | 94 | 85 | 0.5499 | no |
-| roberta-tagalog vs baseline-tfidf | 179 | 106 | 2e-05 | yes |
-| mbert vs xlmr | 94 | 142 | 0.002218 | yes |
-| mbert vs baseline-tfidf | 158 | 142 | 0.3865 | no |
-| xlmr vs baseline-tfidf | 178 | 114 | 0.0002271 | yes |
+Holm correction is applied over the 3 pairwise tests between the transformers; pairs with the TF-IDF baseline are descriptive and uncorrected.
+
+| Pair | b | c | p-value | Holm-adjusted p | Significant (adj. p<0.05) |
+|---|---|---|---|---|---|
+| roberta-tagalog vs mbert | 151 | 94 | 0.0003466 | 0.00104 | yes |
+| roberta-tagalog vs xlmr | 94 | 85 | 0.5499 | 0.5499 | no |
+| roberta-tagalog vs baseline-tfidf | 179 | 106 | 2e-05 | n/a (uncorrected) | yes (uncorrected) |
+| mbert vs xlmr | 94 | 142 | 0.002218 | 0.004435 | yes |
+| mbert vs baseline-tfidf | 158 | 142 | 0.3865 | n/a (uncorrected) | no (uncorrected) |
+| xlmr vs baseline-tfidf | 178 | 114 | 0.0002271 | n/a (uncorrected) | yes (uncorrected) |
 
 ## Supplementary Taglish election test set
 

@@ -1,0 +1,155 @@
+{
+  "meta": {
+    "created": "2026-11-07 14:49:54",
+    "max_length": 128,
+    "n_steps": 100,
+    "max_steps": 800,
+    "tol": 0.05,
+    "model_paths": {
+      "roberta-tagalog": "hansjio/tsektxt-roberta-tagalog",
+      "mbert": "hansjio/tsektxt-mbert",
+      "xlmr": "hansjio/tsektxt-xlmr"
+    },
+    "device": "cuda",
+    "notes": [
+      "Attribution target: logit(not_credible) - logit(credible); positive = toward not credible.",
+      "Baseline: pad-token embeddings at every non-special position.",
+      "IG shows what each model relies on, not ground truth; labels follow the source (fact-checker / outlet).",
+      "Single training seed per model; attributions can change across seeds."
+    ],
+    "csv": "data/processed/ig_internal_sample.csv",
+    "ranked_on": "all posts"
+  },
+  "top_k_sets": {
+    "roberta-tagalog": [
+      "ang",
+      "that",
+      "duterte",
+      "ng",
+      "na",
+      "is",
+      "philippines",
+      "—",
+      "rodrigo",
+      "at",
+      "adobo",
+      "who",
+      "mga",
+      "this",
+      "philippine",
+      "u.s",
+      "sa",
+      "are",
+      "aquino",
+      "all"
+    ],
+    "mbert": [
+      "that",
+      "adobo",
+      "philippines",
+      "u.s",
+      "ng",
+      "na",
+      "leni",
+      "so",
+      "all",
+      "chronicles",
+      "it's",
+      "aquino",
+      "noynoy",
+      "filipino",
+      "trump",
+      "netizens",
+      "philippine",
+      "nito",
+      "republican",
+      "driver"
+    ],
+    "xlmr": [
+      "—",
+      "philippines",
+      "aquino",
+      "all",
+      "it's",
+      "trump",
+      "senator",
+      "u.s",
+      "now",
+      "presidential",
+      "–",
+      "that",
+      "today",
+      "netizens",
+      "below",
+      "republican",
+      "this",
+      "his",
+      "rodrigo",
+      "about"
+    ]
+  },
+  "pairwise": {
+    "roberta-tagalog|mbert": {
+      "jaccard": 0.2903225806451613,
+      "shared": [
+        "adobo",
+        "all",
+        "aquino",
+        "na",
+        "ng",
+        "philippine",
+        "philippines",
+        "that",
+        "u.s"
+      ]
+    },
+    "roberta-tagalog|xlmr": {
+      "jaccard": 0.25,
+      "shared": [
+        "all",
+        "aquino",
+        "philippines",
+        "rodrigo",
+        "that",
+        "this",
+        "u.s",
+        "—"
+      ]
+    },
+    "mbert|xlmr": {
+      "jaccard": 0.2903225806451613,
+      "shared": [
+        "all",
+        "aquino",
+        "it's",
+        "netizens",
+        "philippines",
+        "republican",
+        "that",
+        "trump",
+        "u.s"
+      ]
+    }
+  },
+  "shared_by_all": [
+    "all",
+    "aquino",
+    "philippines",
+    "that",
+    "u.s"
+  ],
+  "per_post_top5": {
+    "roberta-tagalog|mbert": {
+      "n_posts_both_not_credible": 101,
+      "mean_jaccard": 0.2633191890617633
+    },
+    "roberta-tagalog|xlmr": {
+      "n_posts_both_not_credible": 101,
+      "mean_jaccard": 0.19338362407669338
+    },
+    "mbert|xlmr": {
+      "n_posts_both_not_credible": 102,
+      "mean_jaccard": 0.17522564581388111
+    }
+  }
+}

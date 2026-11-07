@@ -1,0 +1,16 @@
+{
+  "python": "3.13.16",
+  "packages": {
+    "torch": "2.14.1+cu130",
+    "transformers": "4.57.6",
+    "datasets": "4.8.5",
+    "scikit-learn": "1.6.1",
+    "captum": "0.9.0",
+    "numpy": "2.4.6",
+    "pandas": "2.2.3",
+    "scipy": "1.16.3",
+    "accelerate": "1.15.0",
+    "tokenizers": "0.22.2"
+  },
+  "note": "Colab session of the extra evaluation (calibration, IG internal sample, timing)"
+}

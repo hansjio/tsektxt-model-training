@@ -1,0 +1,22 @@
+{
+  "tool": "lingua-language-detector (English vs Tagalog only), 30-word chunks of the first 300 words, 80% rule",
+  "n": 25352,
+  "overall": {
+    "mixed": 1435,
+    "tagalog": 2622,
+    "english": 21295
+  },
+  "by_label": {
+    "0": {
+      "mixed": 704,
+      "tagalog": 1355,
+      "english": 7010
+    },
+    "1": {
+      "tagalog": 1267,
+      "mixed": 731,
+      "english": 14285
+    }
+  },
+  "labels": "1 = credible, 0 = not credible"
+}

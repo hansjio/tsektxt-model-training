@@ -1,0 +1,288 @@
+{
+  "meta": {
+    "created": "2026-11-07 14:56:05",
+    "max_length": 128,
+    "n_steps": 100,
+    "max_steps": 800,
+    "tol": 0.05,
+    "model_paths": {
+      "mbert": "hansjio/tsektxt-mbert"
+    },
+    "device": "cuda",
+    "notes": [
+      "Attribution target: logit(not_credible) - logit(credible); positive = toward not credible.",
+      "Baseline: pad-token embeddings at every non-special position.",
+      "IG shows what each model relies on, not ground truth; labels follow the source (fact-checker / outlet).",
+      "Single training seed per model; attributions can change across seeds."
+    ],
+    "csv": "data/processed/errors_mbert.csv",
+    "ranked_on": "all posts"
+  },
+  "counts": {
+    "mbert": {
+      "n_posts": 24,
+      "n_pred_not_credible": 12
+    }
+  },
+  "completeness": {
+    "mbert": {
+      "n": 24,
+      "rel_error_mean": 0.002352518427857465,
+      "rel_error_median": 0.00024663779109439736,
+      "rel_error_max": 0.0370689410701711,
+      "share_within_0.05": 1.0,
+      "tolerance": 0.05
+    }
+  },
+  "top_tokens": {
+    "mbert": {
+      "n_posts": 24,
+      "min_df": 1,
+      "top_k": 20,
+      "toward_not_credible": [
+        {
+          "word": "gobyerno",
+          "sum_attr": 0.39194186218362953,
+          "mean_attr": 0.39194186218362953,
+          "doc_freq": 1
+        },
+        {
+          "word": "santillan",
+          "sum_attr": 0.34331361348081607,
+          "mean_attr": 0.34331361348081607,
+          "doc_freq": 1
+        },
+        {
+          "word": "ride.\"some",
+          "sum_attr": 0.2512679500642942,
+          "mean_attr": 0.2512679500642942,
+          "doc_freq": 1
+        },
+        {
+          "word": "don't",
+          "sum_attr": 0.243252197854469,
+          "mean_attr": 0.1216260989272345,
+          "doc_freq": 2
+        },
+        {
+          "word": "murder.so",
+          "sum_attr": 0.2176474812439178,
+          "mean_attr": 0.2176474812439178,
+          "doc_freq": 1
+        },
+        {
+          "word": "now",
+          "sum_attr": 0.1956365936363284,
+          "mean_attr": 0.03912731872726568,
+          "doc_freq": 5
+        },
+        {
+          "word": "former",
+          "sum_attr": 0.1704060064704186,
+          "mean_attr": 0.0568020021568062,
+          "doc_freq": 3
+        },
+        {
+          "word": "hours.here's",
+          "sum_attr": 0.16202601349865078,
+          "mean_attr": 0.16202601349865078,
+          "doc_freq": 1
+        },
+        {
+          "word": "philippines",
+          "sum_attr": 0.15524760761973794,
+          "mean_attr": 0.05174920253991264,
+          "doc_freq": 3
+        },
+        {
+          "word": "it",
+          "sum_attr": 0.1291955516269982,
+          "mean_attr": 0.03229888790674955,
+          "doc_freq": 4
+        },
+        {
+          "word": "there",
+          "sum_attr": 0.12472949239415519,
+          "mean_attr": 0.062364746197077596,
+          "doc_freq": 2
+        },
+        {
+          "word": "netizens",
+          "sum_attr": 0.09298545933018379,
+          "mean_attr": 0.09298545933018379,
+          "doc_freq": 1
+        },
+        {
+          "word": "that",
+          "sum_attr": 0.09253364299877104,
+          "mean_attr": 0.013219091856967291,
+          "doc_freq": 7
+        },
+        {
+          "word": "ng",
+          "sum_attr": 0.09206117348436262,
+          "mean_attr": 0.018412234696872525,
+          "doc_freq": 5
+        },
+        {
+          "word": "philippine",
+          "sum_attr": 0.08831127066054037,
+          "mean_attr": 0.022077817665135092,
+          "doc_freq": 4
+        },
+        {
+          "word": "cavite.this",
+          "sum_attr": 0.08534118182160694,
+          "mean_attr": 0.08534118182160694,
+          "doc_freq": 1
+        },
+        {
+          "word": "words",
+          "sum_attr": 0.0832369725031461,
+          "mean_attr": 0.020809243125786525,
+          "doc_freq": 4
+        },
+        {
+          "word": "dobermans",
+          "sum_attr": 0.08296233915340775,
+          "mean_attr": 0.08296233915340775,
+          "doc_freq": 1
+        },
+        {
+          "word": "?",
+          "sum_attr": 0.08204730633757107,
+          "mean_attr": 0.08204730633757107,
+          "doc_freq": 1
+        },
+        {
+          "word": "isa",
+          "sum_attr": 0.07894819666686222,
+          "mean_attr": 0.07894819666686222,
+          "doc_freq": 1
+        }
+      ],
+      "toward_credible": [
+        {
+          "word": "the",
+          "sum_attr": -0.5349303785142313,
+          "mean_attr": -0.028154230448117438,
+          "doc_freq": 19
+        },
+        {
+          "word": "of",
+          "sum_attr": -0.3286364974770437,
+          "mean_attr": -0.018257583193169096,
+          "doc_freq": 18
+        },
+        {
+          "word": "to",
+          "sum_attr": -0.2791289494043386,
+          "mean_attr": -0.01744555933777116,
+          "doc_freq": 16
+        },
+        {
+          "word": "saturday",
+          "sum_attr": -0.2198581109793275,
+          "mean_attr": -0.10992905548966375,
+          "doc_freq": 2
+        },
+        {
+          "word": "tuesday.\"i",
+          "sum_attr": -0.21559172227508075,
+          "mean_attr": -0.21559172227508075,
+          "doc_freq": 1
+        },
+        {
+          "word": "and",
+          "sum_attr": -0.19147000933279068,
+          "mean_attr": -0.010077368912252142,
+          "doc_freq": 19
+        },
+        {
+          "word": "in",
+          "sum_attr": -0.1892507065260975,
+          "mean_attr": -0.0126167137684065,
+          "doc_freq": 15
+        },
+        {
+          "word": "sen",
+          "sum_attr": -0.18911376402593977,
+          "mean_attr": -0.18911376402593977,
+          "doc_freq": 1
+        },
+        {
+          "word": "for",
+          "sum_attr": -0.18204346833076204,
+          "mean_attr": -0.013003104880768718,
+          "doc_freq": 14
+        },
+        {
+          "word": "on",
+          "sum_attr": -0.17657663484650626,
+          "mean_attr": -0.017657663484650626,
+          "doc_freq": 10
+        },
+        {
+          "word": "oct",
+          "sum_attr": -0.16230233188119625,
+          "mean_attr": -0.16230233188119625,
+          "doc_freq": 1
+        },
+        {
+          "word": "senate,\"pimentel",
+          "sum_attr": -0.1563923904619326,
+          "mean_attr": -0.1563923904619326,
+          "doc_freq": 1
+        },
+        {
+          "word": "at",
+          "sum_attr": -0.14544419854434706,
+          "mean_attr": -0.016160466504927452,
+          "doc_freq": 9
+        },
+        {
+          "word": "monday.the",
+          "sum_attr": -0.12685315559706684,
+          "mean_attr": -0.12685315559706684,
+          "doc_freq": 1
+        },
+        {
+          "word": "won.\"now",
+          "sum_attr": -0.12148731692158715,
+          "mean_attr": -0.12148731692158715,
+          "doc_freq": 1
+        },
+        {
+          "word": "has",
+          "sum_attr": -0.12095050081588266,
+          "mean_attr": -0.030237625203970664,
+          "doc_freq": 4
+        },
+        {
+          "word": "president",
+          "sum_attr": -0.11219094965187822,
+          "mean_attr": -0.014023868706484777,
+          "doc_freq": 8
+        },
+        {
+          "word": "was",
+          "sum_attr": -0.10808449333466967,
+          "mean_attr": -0.010808449333466967,
+          "doc_freq": 10
+        },
+        {
+          "word": "project",
+          "sum_attr": -0.10795258393326249,
+          "mean_attr": -0.10795258393326249,
+          "doc_freq": 1
+        },
+        {
+          "word": "chong",
+          "sum_attr": -0.10783267041540434,
+          "mean_attr": -0.10783267041540434,
+          "doc_freq": 1
+        }
+      ]
+    }
+  }
+}

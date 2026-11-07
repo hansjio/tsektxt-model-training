@@ -90,6 +90,8 @@ python src/interpret.py corpus --csv data/external/taglish_test.csv    # Integra
 python src/profile_corpus.py --csv data/external/taglish_test.csv --name taglish
 ```
 
+**Re-run after new data** (e.g. `data/external/supplementary_collected_task05.csv` arrives): `python src/merge_candidates.py && python src/build_annotation_sheet.py --only-new SHEET_EXPORT.csv` (SHEET_EXPORT.csv = download of the Sheet tab as CSV) writes `data/external/annotation_tab_import_new.csv` with only posts not yet in the Sheet; append those rows below the labelled ones. Without `--only-new` it rebuilds the full import file. Screening hints are included; for new posts with `language_hint` = english, add a hint to `data/external/language_check.csv` (see `english_hint_not_yet_checked` in the .report.json). AI output is hints only, never labels.
+
 ## Repository layout
 
 ```

@@ -2,7 +2,7 @@
 
     python src/merge_candidates.py          (groupmate file defaults to data/external/groupmate_candidate_sources.csv)
 
-Inputs (data/external/, never modified): draft_prelabelled.csv, draft_testset_v2_filled.csv, x_fetched_text_REVIEW.csv,
+Inputs (data/external/, never modified; supplementary_collected_task05.csv is read if present): draft_prelabelled.csv, draft_testset_v2_filled.csv, x_fetched_text_REVIEW.csv,
 label1_candidates_news_REVIEW.csv, supplementary_collected_auto.csv, plus the groupmate's candidate_sources.csv.
 Outputs: data/external/merged_for_annotation.csv, merged_for_annotation.rejects.csv (every dropped row + reason),
          merged_for_annotation.report.json.
@@ -25,7 +25,7 @@ COLS = ["post_id", "text", "platform", "url", "collection date", "reactions_coun
         "collector", "annotator_1_label", "annotator_2_label", "final_label", "label_source", "candidate_political_actor",
         "institution mentioned", "issue_category", "claim_type", "language_pattern",
         "needs_text", "text_origin", "claim_summary", "factcheck_verdict_hint", "ai_prelabel_hint", "factcheck_rating",
-        "all_factcheck_urls", "source_type", "source_account", "has_checkable_claim", "origin_files", "merge_notes"]
+        "all_factcheck_urls", "source_type", "source_account", "has_checkable_claim", "stratum", "origin_files", "merge_notes"]
 WINDOW = ("2022-02-08", "2022-05-09")
 
 
@@ -65,6 +65,15 @@ def is_junk(t):
 
 def is_url(s):
     return bool(re.match(r"https?://", (s or "").strip()))
+
+
+def backup(p):
+    """Copy an existing output to data/external/_superseded/ with a date suffix before it is overwritten."""
+    import datetime, shutil
+    p = Path(p)
+    if p.exists():
+        d = p.parent / "_superseded"; d.mkdir(exist_ok=True)
+        shutil.copy2(p, d / f"{p.stem}_{datetime.date.today().isoformat()}{p.suffix}")
 
 
 def main():
@@ -123,6 +132,16 @@ def main():
         add(key(x["url"]), "auto_collection", {**{c: x.get(c, "") for c in COLS[:9]}, "source_type": x.get("source_type", ""),
             "source_account": x.get("source_account", ""), "has_checkable_claim": x.get("has_checkable_claim", ""),
             "language_pattern": x.get("language_guess", ""), "text_origin": x.get("text_origin", "")})
+    # 5b. Task 05 collection (long-form + gap-fill), read if present. Its factcheck_url is a LINK only, never a label.
+    t5 = EXT / "supplementary_collected_task05.csv"
+    for x in (read(t5) if t5.exists() else []):
+        fu = clean_url(x.get("factcheck_url", ""))
+        if is_junk(x.get("text")): x = {**x, "text": ""}; notes["task05_junk_text_ignored"] += 1
+        add(key(x["url"]), "task05", {**{c: x.get(c, "") for c in COLS[:9]}, "source_type": x.get("source_type", ""),
+            "source_account": x.get("source_account", ""), "has_checkable_claim": x.get("has_checkable_claim", ""),
+            "language_pattern": x.get("language_guess", ""), "text_origin": x.get("text_origin", ""), "stratum": x.get("stratum", ""),
+            "all_factcheck_urls": fu if is_url(fu) else "", "label_source": fu if is_url(fu) else ""})
+        notes["task05_rows_read"] += 1
     # 6. Groupmate's candidate_sources.csv (fact-check embeds; text = fact-checker's claim summary)
     seen = set()
     for x in read(a.groupmate):
@@ -170,6 +189,7 @@ def main():
         r["annotator_1_label"] = r["annotator_2_label"] = r["final_label"] = ""
         if not r["text"]: r["needs_text"] = "yes"
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
+    backup(a.out)
     with open(a.out, "w", encoding="utf-8-sig", newline="") as f:
         w = csv.DictWriter(f, COLS); w.writeheader(); w.writerows(out)
     rj = Path(a.out).with_suffix(".rejects.csv")

@@ -58,6 +58,8 @@ after cleaning (16,283 credible, 9,069 not credible; about 64% / 36%).
 | Validation (15%) | 3,803 | 2,443 | 1,360 |
 | Test (15%) | 3,803 | 2,442 | 1,361 |
 
+Row counts: the two source datasets total 25,668 rows; the combined file had 25,398 (270 rows were dropped at the merge step, before the cleaning script, and were not logged); the cleaning script then removed 46, leaving 25,352 (`results/cleaning_report.json`). Language mix of the 25,352 training articles: 21,295 English, 2,622 Tagalog, 1,435 mixed (lingua detector, English vs Tagalog only; `results/language_id_train.json`).
+
 Cleaning: text-encoding repair (ftfy), removal of HTML and URLs, whitespace normalisation, removal of texts under 10 words,
 and removal of exact/near-duplicates and duplicates with conflicting labels (21,088 of 25,398 rows were modified; 46 removed). Splits are stratified, seed 42, and identical for all three models.
 
@@ -75,7 +77,7 @@ Trained on a single Tesla T4 (Google Colab). All three models used identical dat
 | Model | Accuracy | Precision (NC) | Recall (NC) | F1 (NC) | Macro F1 | Weighted F1 |
 |---|---|---|---|---|---|---|
 | RoBERTa-Tagalog | 0.9450 | 0.9103 | 0.9390 | 0.9244 | 0.9406 | 0.9452 |
-| **mBERT** | **0.9301** | **0.8810** | **0.9302** | **0.9049** | **0.9248** | **0.9305** |
+| mBERT | 0.9301 | 0.8810 | 0.9302 | 0.9049 | 0.9248 | 0.9305 |
 | XLM-RoBERTa | 0.9427 | 0.9150 | 0.9258 | 0.9204 | 0.9378 | 0.9428 |
 
 Confusion matrix (rows = actual, columns = predicted):
@@ -92,7 +94,7 @@ Confusion matrix (rows = actual, columns = predicted):
 | Model | Accuracy | Precision (NC) | Recall (NC) | F1 (NC) | Macro F1 | Weighted F1 |
 |---|---|---|---|---|---|---|
 | RoBERTa-Tagalog | 0.9450 | 0.9103 | 0.9390 | 0.9244 | 0.9406 | 0.9452 |
-| **mBERT** | **0.9301** | **0.8810** | **0.9302** | **0.9049** | **0.9248** | **0.9305** |
+| mBERT | 0.9301 | 0.8810 | 0.9302 | 0.9049 | 0.9248 | 0.9305 |
 | XLM-RoBERTa | 0.9427 | 0.9150 | 0.9258 | 0.9204 | 0.9378 | 0.9428 |
 
 McNemar's test on paired predictions (exact binomial when b + c < 25, otherwise continuity-corrected chi-square):
@@ -105,7 +107,7 @@ McNemar's test on paired predictions (exact binomial when b + c < 25, otherwise 
 
 b = first model correct and second wrong; c = the reverse.
 
-Differences are small, come from a single training run per model (one seed), and are measured on the internal formal-news test set only.
+RoBERTa-Tagalog and XLM-RoBERTa are statistically tied (McNemar p = 0.55); mBERT is significantly lower than both. Differences are small, come from a single training run per model (one seed), and are measured on the internal formal-news test set only.
 
 A non-neural baseline (TF-IDF + logistic regression on the first 128 words) scored accuracy 0.9258 and weighted F1 0.9263. It was significantly worse than RoBERTa-Tagalog (p = 0.00002) and XLM-RoBERTa (p = 0.0002) but not significantly different from mBERT (p = 0.39).
 
@@ -117,7 +119,7 @@ A non-neural baseline (TF-IDF + logistic regression on the first 128 words) scor
   High internal scores should therefore not be read as proof of detecting factual misinformation (`src/leakage_probe.py`, `src/baseline.py` in the training repo).
 - **Domain gap.** Training data are news articles in Filipino and English; the target use is informal, code-switched Taglish social-media text, which this card does not evaluate.
 - **Short texts.** Accuracy falls as text gets shorter. When internal test articles were cut to their first 15 / 30 / 60 words, accuracy was 0.713 / 0.826 / 0.915 (full text 0.930). The drop comes from credible articles being called not credible (40.9% at 15 words vs 7.0% on full text), while not-credible recall stays about the same. Short social-media posts (often under 40 words) are therefore more likely to be labelled not credible; this card does not measure accuracy on them. Adding a link barely changed predictions (32 of 3803 flipped). Source: `results/domain_shift.json` (`src/domain_shift_checks.py`).
-- **Overconfidence.** The model is often very sure when wrong: median confidence on its internal test errors is 0.882, and 125 of 266 errors had confidence of 0.90 or more. These are raw softmax values and remain the finding. Post-hoc temperature scaling (one number T fitted on the internal validation split by `src/calibrate.py`, stored in `results/calibration.json`) softens the percentages without changing any prediction; the thesis scripts and demo show the calibrated value next to the raw one, and the before/after calibration error is in `results/calibration_report.json`. Calibration was fitted on news articles, so on short posts the percentages can still be too high. The `pipeline` score below is the raw value.
+- **Overconfidence.** The model is often very sure when wrong: median confidence on its internal test errors is about 0.88, and 125 of 266 errors had confidence of 0.90 or more. These are raw softmax values and remain the finding. Post-hoc temperature scaling (one number T fitted on the internal validation split by `src/calibrate.py`, stored in `results/calibration.json`) softens the percentages without changing any prediction; the thesis scripts and demo show the calibrated value next to the raw one, and the before/after calibration error is in `results/calibration_report.json`. Calibration was fitted on news articles, so on short posts the percentages can still be too high. On this model T = 1.361; on the internal test set, ECE (15 bins) went from 0.0265 to 0.0160, NLL from 0.2117 to 0.1998, and median confidence when wrong from 0.881 to 0.814 (`results/calibration_report.json`). Predictions never change, and T was fitted on the validation split only. The `pipeline` score below is the raw softmax value.
 - **Long texts** are truncated to 128 tokens.
 - **Single run.** No variation across random seeds was measured.
 - **Election and political content** may reflect biases in the source datasets. Do not use outputs to draw conclusions about intent, origin, or specific political actors.
@@ -130,7 +132,11 @@ from transformers import pipeline
 clf = pipeline("text-classification", model="hansjio/tsektxt-mbert")
 print(clf("Your text here", truncation=True, max_length=128))
 # [{'label': 'credible' | 'not_credible', 'score': ...}]   score = raw softmax (not calibrated)
-# Calibrated: divide the logits by T from results/calibration.json in the training repo before the softmax.
+# Calibrated (optional): divide the logits by T = 1.361 before the softmax. T was fitted on the validation split only;
+# predictions never change, only the confidence. Source: results/calibration.json in the training repo.
+# logits = model(**inputs).logits          # shape (1, 2)
+# T = 1.361
+# probs = torch.softmax(logits / T, dim=-1)
 ```
 
 ## Code and citation

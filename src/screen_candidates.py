@@ -22,7 +22,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from profile_corpus import guess_language, TOK  # noqa: E402
 
 WINDOW = ("2022-02-08", "2022-05-09")
-MIN_WORDS = 10            # group rule: no post under 10 words (same as clean_annotations.py --min-words)
+MIN_WORDS = 5             # reverted 2026-11-07: the supplementary-set owner decides any stricter minimum
 TARGET_POSTS = (300, 500)   # Chapter III target size for the Taglish set
 # Election vocabulary: generic terms plus 2022 national candidates and common nicknames. Lower-case, matched as whole words.
 ELECTION = set("""halalan eleksyon election elections boto botante bumoto iboto vote votes voter voters voting comelec kandidato candidate

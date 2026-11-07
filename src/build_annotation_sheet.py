@@ -50,7 +50,7 @@ def first_url(s):
     return m.group(0) if m else ""
 
 
-def build(only_new=None, include_drop=False, keep_english=False):
+def build(only_new=None, include_drop=True, keep_english=True):
     rows = list(csv.DictReader(open(SRC, encoding="utf-8-sig", newline="")))
     scr = screen(rows)  # same order as rows (post_id is NOT unique: 3 ids are shared by 2 different posts, kept as is for the Sheet)
     lc = {}
@@ -122,7 +122,8 @@ def build(only_new=None, include_drop=False, keep_english=False):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--only-new", metavar="SHEET_EXPORT.csv", help="CSV export of the Sheet tab; write only posts whose post_id is not in it")
-    ap.add_argument("--include-drop", action="store_true", help="also put rows screened 'drop' in the tab (default: separate file)")
-    ap.add_argument("--keep-english", action="store_true", help="do not drop posts the language check confirmed as English-only")
+    # Default (2026-11-07): every post goes to the tab with its screen / screen_reasons hints; the supplementary-set owner decides exclusions.
+    ap.add_argument("--exclude-drop", action="store_true", help="leave rows screened 'drop' out of the tab (they go to annotation_tab_dropped.csv)")
+    ap.add_argument("--drop-english", action="store_true", help="also mark posts the language check confirmed as English-only as 'drop'")
     a = ap.parse_args()
-    build(a.only_new, a.include_drop, a.keep_english)
+    build(a.only_new, not a.exclude_drop, not a.drop_english)

@@ -76,7 +76,7 @@ def fig_a():
 
 def cm_axes(ax, y, p, title):
     m = np.zeros((2, 2), int)
-    for t, q in zip(y, p): m[1 - t, 1 - q] += 1  # row/col 0 = not credible (positive), 1 = credible
+    for t, q in zip(y, p): m[t, q] += 1  # labels: 0 = not credible (positive) -> row/col 0, 1 = credible -> row/col 1
     ax.imshow(m / m.sum(1, keepdims=True), cmap="Blues", vmin=0, vmax=1)
     for i in range(2):
         for j in range(2):

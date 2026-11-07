@@ -13,7 +13,7 @@ if __name__ == "__main__":
         tr = [(e["epoch"], e["loss"]) for e in log if "loss" in e and "eval_loss" not in e]
         va = [(e["epoch"], e["eval_loss"]) for e in log if "eval_loss" in e]
         ax.plot(*zip(*tr), marker="o", label="train loss"); ax.plot(*zip(*va), marker="s", label="validation loss")
-        b = min(va, key=lambda x: x[1]); ax.scatter([b[0]], [b[1]], s=160, facecolors="none", edgecolors="red", label=f"best (epoch {int(b[0])})")
+        b = min(va, key=lambda x: x[1]); ax.scatter([b[0]], [b[1]], s=160, facecolors="none", edgecolors="red", label="best epoch (lowest validation loss, kept)")
         ax.set_title(name); ax.set_xlabel("epoch"); ax.set_xticks([int(x[0]) for x in va]); ax.grid(alpha=.3)
-    axes[0].set_ylabel("loss"); axes[0].legend(); fig.suptitle("Training and validation loss (early stopping on validation loss)")
-    fig.tight_layout(); fig.savefig("results/figures/loss_curves.png", dpi=160); print("saved results/figures/loss_curves.png")
+    axes[0].set_ylabel("loss"); h, l = axes[0].get_legend_handles_labels(); fig.legend(h, l, loc="lower center", ncol=3, fontsize=8, frameon=False, bbox_to_anchor=(0.5, -0.06)); fig.suptitle("Training and validation loss (early stopping on validation loss)")
+    fig.tight_layout(); fig.savefig("results/figures/loss_curves.png", dpi=160, bbox_inches="tight"); print("saved results/figures/loss_curves.png")

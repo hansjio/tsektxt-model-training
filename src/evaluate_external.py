@@ -2,12 +2,16 @@
 
     python src/evaluate_external.py --model xlmr --csv data/external/taglish_test.csv
 CSV needs columns: id, text, label  (1 = credible, 0 = not credible).
+external_predictions.csv keeps the raw softmax prob_credible and, when results/calibration.json exists (src/calibrate.py,
+fitted on the internal validation split), adds prob_credible_calibrated. Predictions and metrics use the raw argmax, which
+temperature scaling never changes. The Taglish set is never used to fit anything.
 """
 import argparse, json
 from pathlib import Path
 import pandas as pd, torch, yaml
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from train import metrics_from
+from calibrate import calibrate_p_credible, load_temperature
 
 
 def main():
@@ -27,7 +31,14 @@ def main():
     m = metrics_from(df.label.values, y_pred, cfg["labels"]["positive_label"]); m["model"] = a.model
     out = Path(a.out_dir) / a.model; out.mkdir(parents=True, exist_ok=True)
     json.dump(m, open(out / "external_metrics.json", "w"), indent=2)
-    pd.DataFrame({"id": df.id, "y_true": df.label, "y_pred": y_pred, "prob_credible": probs[:, 1]}).to_csv(out / "external_predictions.csv", index=False)
+    pred = pd.DataFrame({"id": df.id, "y_true": df.label, "y_pred": y_pred, "prob_credible": probs[:, 1]})
+    T, calibrated = load_temperature(a.model)
+    if calibrated:
+        pred["prob_credible_calibrated"] = [calibrate_p_credible(p, T) for p in probs[:, 1]]
+        print(f"[{a.model}] added prob_credible_calibrated (T = {T})")
+    else:
+        print(f"[{a.model}] no results/calibration.json: raw probabilities only (run src/calibrate.py first)")
+    pred.to_csv(out / "external_predictions.csv", index=False)
     print(json.dumps(m, indent=2))
 
 

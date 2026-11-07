@@ -9,10 +9,13 @@
 
 Models are loaded from models/<name>/ if present, else from the Hugging Face Hub (hansjio/tsektxt-*).
 Label meaning comes from model.config.id2label (1 = credible, 0 = not credible).
+Probabilities are temperature-scaled with results/calibration.json (src/calibrate.py) when it exists; the raw softmax value
+is shown next to it. Temperature scaling never changes the predicted label. Without the file, raw softmax is shown.
 """
 import argparse, sys
 from pathlib import Path
 import pandas as pd, torch, yaml
+from calibrate import load_temperature
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 CFG = yaml.safe_load(open("configs/config.yaml"))
@@ -31,12 +34,23 @@ def load(name, source):
 
 
 @torch.no_grad()
-def predict(tok, model, texts, bs=32):
+def logits(tok, model, texts, bs=32):
     out = []
     for i in range(0, len(texts), bs):
         b = tok(texts[i:i + bs], truncation=True, max_length=MAXLEN, padding=True, return_tensors="pt").to(DEV)
-        out.append(torch.softmax(model(**b).logits, -1).cpu())
-    return torch.cat(out).numpy()  # columns follow label ids: [:,0]=not_credible, [:,1]=credible
+        out.append(model(**b).logits.float().cpu())
+    return torch.cat(out)
+
+
+def predict(tok, model, texts, bs=32, T=1.0):
+    """Softmax of logits / T (T = 1: raw). Columns follow label ids: [:,0]=not_credible, [:,1]=credible."""
+    return torch.softmax(logits(tok, model, texts, bs) / T, -1).numpy()
+
+
+def both(name, tok, model, texts):
+    """(calibrated, raw) probabilities from one model run; calibrated == raw when results/calibration.json is missing."""
+    lg = logits(tok, model, texts); T, _ = load_temperature(name)
+    return torch.softmax(lg / T, -1).numpy(), torch.softmax(lg, -1).numpy()
 
 
 def show(texts, results):
@@ -73,7 +87,8 @@ def main():
     if a.csv:
         df = pd.read_csv(a.csv); texts = df.text.astype(str).tolist()
         for n, (t, m) in models.items():
-            p = predict(t, m, texts); df[f"{n}_p_credible"] = p[:, 1]; df[f"{n}_pred"] = p.argmax(1)
+            p, raw = both(n, t, m, texts)
+            df[f"{n}_p_credible"] = p[:, 1]; df[f"{n}_p_credible_raw"] = raw[:, 1]; df[f"{n}_pred"] = raw.argmax(1)
         out = Path(a.csv).with_name(Path(a.csv).stem + "_predictions.csv"); df.to_csv(out, index=False)
         print(f"wrote {out}")
         if "label" in df:
@@ -83,12 +98,12 @@ def main():
         while True:
             t = input("\npost (blank to quit): ").strip()
             if not t: break
-            show([t], {n: predict(tk, m, [t]) for n, (tk, m) in models.items()})
+            show([t], {n: both(n, tk, m, [t]) for n, (tk, m) in models.items()})
         return
     texts = [a.text] if a.text else Path(a.file).read_text(encoding="utf-8").splitlines() if a.file else None
     if not texts: ap.error("give --text, --file, --csv, --interactive or --split-gap")
     texts = [t for t in texts if t.strip()]
-    show(texts, {n: predict(tk, m, texts) for n, (tk, m) in models.items()})
+    show(texts, {n: both(n, tk, m, texts) for n, (tk, m) in models.items()})
 
 
 if __name__ == "__main__":

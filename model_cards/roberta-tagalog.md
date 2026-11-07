@@ -117,7 +117,7 @@ A non-neural baseline (TF-IDF + logistic regression on the first 128 words) scor
   High internal scores should therefore not be read as proof of detecting factual misinformation (`src/leakage_probe.py`, `src/baseline.py` in the training repo).
 - **Domain gap.** Training data are news articles in Filipino and English; the target use is informal, code-switched Taglish social-media text, which this card does not evaluate.
 - **Short texts.** Accuracy falls as text gets shorter. When internal test articles were cut to their first 15 / 30 / 60 words, accuracy was 0.688 / 0.833 / 0.924 (full text 0.945). The drop comes from credible articles being called not credible (45.4% at 15 words vs 5.2% on full text), while not-credible recall stays about the same. Short social-media posts (often under 40 words) are therefore more likely to be labelled not credible; this card does not measure accuracy on them. Adding a link barely changed predictions (4 of 3803 flipped). Source: `results/domain_shift.json` (`src/domain_shift_checks.py`).
-- **Overconfidence.** The model is often very sure when wrong: median confidence on its internal test errors is 0.973, and 135 of 209 errors had confidence of 0.90 or more. Treat the probability as a score, not a calibrated likelihood (`results/confidence_check.json`).
+- **Overconfidence.** The model is often very sure when wrong: median confidence on its internal test errors is 0.973, and 135 of 209 errors had confidence of 0.90 or more. These are raw softmax values and remain the finding. Post-hoc temperature scaling (one number T fitted on the internal validation split by `src/calibrate.py`, stored in `results/calibration.json`) softens the percentages without changing any prediction; the thesis scripts and demo show the calibrated value next to the raw one, and the before/after calibration error is in `results/calibration_report.json`. Calibration was fitted on news articles, so on short posts the percentages can still be too high. The `pipeline` score below is the raw value.
 - **Long texts** are truncated to 128 tokens.
 - **Single run.** No variation across random seeds was measured.
 - **Election and political content** may reflect biases in the source datasets. Do not use outputs to draw conclusions about intent, origin, or specific political actors.
@@ -129,7 +129,8 @@ from transformers import pipeline
 
 clf = pipeline("text-classification", model="hansjio/tsektxt-roberta-tagalog")
 print(clf("Your text here", truncation=True, max_length=128))
-# [{'label': 'credible' | 'not_credible', 'score': ...}]
+# [{'label': 'credible' | 'not_credible', 'score': ...}]   score = raw softmax (not calibrated)
+# Calibrated: divide the logits by T from results/calibration.json in the training repo before the softmax.
 ```
 
 ## Code and citation

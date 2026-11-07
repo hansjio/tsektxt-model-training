@@ -244,8 +244,29 @@ def fig_i():
     fig.suptitle("Integrated Gradients: words pushing toward 'not credible' (descriptive, not causal)", y=1.02); fig.tight_layout(); save(fig, "fig_i_ig_top_words")
 
 
+def fig_k():
+    """Reliability diagram before vs after temperature scaling (internal test split) from calibration_report.json."""
+    d = load("calibration_report.json")
+    if not d: return skip("fig_k_reliability", "calibration_report.json (run src/calibrate.py)")
+    ms = [m for m in MODELS if m in d["models"]]
+    fig, axes = plt.subplots(1, len(ms), figsize=(W * 1.5, 3.3), sharey=True); axes = np.atleast_1d(axes)
+    for ax, m in zip(axes, ms):
+        r = d["models"][m]
+        ax.plot([0.5, 1], [0.5, 1], color="black", ls="--", lw=1, label="perfect calibration")
+        for key, lab, c, mk in [("before", "raw softmax", C_RED, "o"), ("after", "temperature-scaled", C_BLUE, "s")]:
+            b = [x for x in r[key]["reliability_bins"] if x["n"] >= 10]  # bins with fewer than 10 posts are too noisy to plot
+            ax.plot([x["mean_confidence"] for x in b], [x["accuracy"] for x in b], marker=mk, color=c, ms=4,
+                    label=f"{lab} (ECE {r[key]['ece_15_bins']:.3f})")
+        ax.set_xlim(.5, 1.0); ax.set_ylim(.3, 1.02); ax.set_xlabel("mean confidence in bin"); ax.legend(fontsize=6.5, loc="upper left")
+        ax.set_title(f"{NAME[m]} (T = {r['T']:.2f})", fontsize=9)
+    axes[0].set_ylabel("accuracy in bin")
+    fig.suptitle(f"Internal test set: reliability before and after temperature scaling (n = {d['models'][ms[0]]['n_test']}; "
+                 "T fitted on validation; bins with n >= 10)", y=1.02, fontsize=9)
+    fig.tight_layout(); save(fig, "fig_k_reliability")
+
+
 if __name__ == "__main__":
-    for f in (fig_a, fig_b, fig_c, fig_d, fig_e, fig_f, fig_g, fig_h, fig_i, fig_j):
+    for f in (fig_a, fig_b, fig_c, fig_d, fig_e, fig_f, fig_g, fig_h, fig_i, fig_j, fig_k):
         try: f()
         except Exception as e:  # one bad input must not stop the others
             skipped.append(f.__name__); print(f"SKIP {f.__name__}: {type(e).__name__}: {e}", file=sys.stderr)

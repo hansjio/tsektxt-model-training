@@ -16,6 +16,7 @@ Labels: 1 = credible, 0 = not credible (positive class). Do not read any figure 
 | `fig_g_taglish_metrics` | `external_bootstrap_ci.json` | Taglish test-set accuracy, F1 (not credible) and weighted F1 with 95% bootstrap CIs. Taglish is test only. | Ch. IV, Taglish results |
 | `fig_h_taglish_by_length` | `external_length_bins.json` | Taglish accuracy by post length (fixed bins); bins are small, so differences are noisy. | Ch. IV, Taglish results |
 | `fig_i_ig_top_words` | `ig_top_tokens.json` | Integrated Gradients: words with the largest summed attribution toward "not credible", per model. Descriptive, not causal. | Ch. IV, interpretability |
+| `fig_k_reliability` | `calibration_report.json` (src/calibrate.py) | Reliability diagram on the internal test set before and after temperature scaling (T fitted on the validation split). Predictions are unchanged; only confidence changes. | Ch. IV, error analysis / calibration |
 | `fig_j_confidence_taglish` | `external_confidence_check.json` | As fig. d, on the Taglish set. | Ch. IV, Taglish results |
 
-Status 2026-11-07: a to f and `loss_curves` exist (fig f now uses the cleaned corpus: 25,352 articles, medians 335 / 179; posts n = 640, median 34). g, h, i, j wait for the Taglish results and IG.
+Status 2026-11-07: a to f and `loss_curves` exist (fig f uses the cleaned corpus: 25,352 articles, medians 335 / 179; screened posts n = 715, median 33, which changes when the dataset lead updates the screening). fig_b axes and the loss-curve legend were fixed in commit 53acf00. k waits for `notebooks/colab_extra.ipynb` (calibration). g, h, i, j wait for the Taglish results and IG.

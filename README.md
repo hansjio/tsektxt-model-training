@@ -75,13 +75,19 @@ not-credible training articles; `results/length_distribution.json`, figure `fig_
 where the models are weakest. Adding a link to every test article flipped very few predictions (RoBERTa-Tagalog 4, mBERT 32, XLM-RoBERTa 12 of 3,803), and on 12 collected
 posts that contain a URL, removing it flipped none: links are not a meaningful cue.
 
-**Confidence when wrong** (`results/confidence_check.json`; figure `fig_d_confidence_internal`). Softmax output is not a calibrated probability.
+**Confidence when wrong** (`results/confidence_check.json`; figure `fig_d_confidence_internal`). Raw softmax output is not a calibrated probability; the table below is the raw finding.
 
 | Model | Errors | Median confidence when wrong | Errors at >= 0.90 | Errors at >= 0.99 |
 |---|---|---|---|---|
 | RoBERTa-Tagalog | 209 | 0.973 | 135 | 80 |
 | mBERT | 266 | 0.882 | 125 | 28 |
 | XLM-RoBERTa | 218 | 0.984 | 161 | 86 |
+
+**Calibration.** `src/calibrate.py` fits one temperature T per model on the internal validation split and reports, on the internal test split,
+the expected calibration error (15 bins), NLL, Brier score and median confidence before and after (`results/calibration.json`,
+`results/calibration_report.json`, figure `fig_k_reliability`; run in `notebooks/colab_extra.ipynb`). Predictions never change. `predict.py`,
+`evaluate_external.py` (`prob_credible_calibrated`), `confidence_check.py` (a `calibrated` block) and the demo show calibrated values next to
+the raw ones. It is fitted on news articles, so short-post percentages can still be too high. Never fitted on the Taglish set.
 
 These are diagnostics on the internal set only. Accuracy on the Taglish election posts is pending annotation; it will be reported by
 fixed length bins (under 20 / 20-39 / 40-99 / 100+ words, `src/length_bins.py`).
@@ -98,6 +104,7 @@ python src/compare.py                                                  # -> resu
 python src/baseline.py                                                 # TF-IDF + LogReg baseline (run before compare.py)
 python src/leakage_probe.py                                            # source-style diagnostic
 python src/domain_shift_checks.py                                      # length cuts + link check (inference only) -> results/domain_shift.*
+python src/calibrate.py                                                # temperature scaling on the validation split -> results/calibration*.json
 python src/plot_training.py                                            # loss curves -> results/figures/
 python src/bootstrap_ci.py                                             # confidence intervals -> results/bootstrap_ci.json
 ```
@@ -134,7 +141,8 @@ src/baseline.py            non-neural TF-IDF + LogReg baseline
 src/leakage_probe.py       first/last-12-words source-style diagnostic
 src/domain_shift_checks.py accuracy when articles are cut short; effect of links (inference only)
 src/screen_candidates.py   pre-annotation screening of candidate posts: usable / check / drop + hints (never labels)
-src/confidence_check.py    how confident each model is when it is wrong (from saved predictions)
+src/confidence_check.py    how confident each model is when it is wrong (from saved predictions; raw and calibrated)
+src/calibrate.py           temperature scaling fitted on the validation split -> results/calibration*.json (predictions unchanged)
 src/length_bins.py         Taglish results by fixed length bins (under 20 / 20-39 / 40-99 / 100+ words); primary result stays the full set
 src/plot_training.py       train/validation loss curves
 src/bootstrap_ci.py        95% bootstrap confidence intervals
@@ -151,6 +159,7 @@ model_cards/               refined Hugging Face model cards
 results/                   metrics, comparison, cleaning report
 tests/                     smoke tests on dummy data only
 notebooks/colab_eval.ipynb  test + Taglish scoring + IG (use this)
+notebooks/colab_extra.ipynb extra paper results: calibration, IG on an internal sample, error analysis, timing, language ID
 notebooks/colab_train.ipynb retraining only (do not run unless the group decides to retrain)
 ```
 The demo app is a separate repo: https://github.com/hansjio/tsektxt-app (runs the 3 models + IG locally).

@@ -136,6 +136,8 @@ python src/bootstrap_ci.py                                             # confide
 ```
 **Which Colab notebook?**
 - `notebooks/colab_eval.ipynb`: **use this one.** It tests the models, scores the Taglish set (metrics, bootstrap CIs, McNemar + Holm) and runs Integrated Gradients. It never retrains anything. [Open in Colab](https://colab.research.google.com/github/hansjio/tsektxt-model-training/blob/master/notebooks/colab_eval.ipynb)
+- `notebooks/colab_present.ipynb`: **for the demo and the defense.** Read-only: shows the results and figures from `results/*.json`, scores any post live with all three models, and runs Integrated Gradients for one post. Never retrains, never uploads. [Open in Colab](https://colab.research.google.com/github/hansjio/tsektxt-model-training/blob/master/notebooks/colab_present.ipynb)
+- `notebooks/colab_extra.ipynb`: the extra paper results (calibration, IG on an internal sample, error analysis, timing, language ID). Already run; only re-run if the numbers must be regenerated.
 - `notebooks/colab_train.ipynb`: **only if the group decides to retrain.** It overwrites the models on Hugging Face (T4 GPU; needs a Hugging Face write token as the Colab secret `HF_TOKEN`).
 
 Taglish test set, after annotation (see `notebooks/colab_eval.ipynb` sections 3-4):
@@ -152,6 +154,18 @@ python src/profile_corpus.py --csv data/external/taglish_test.csv --name taglish
 ```
 
 **Re-run after new data** (e.g. `data/external/supplementary_collected_task05.csv` arrives): `python src/merge_candidates.py && python src/build_annotation_sheet.py --only-new SHEET_EXPORT.csv` (SHEET_EXPORT.csv = download of the Sheet tab as CSV) writes `data/external/annotation_tab_import_new.csv` with only posts not yet in the Sheet; append those rows below the labelled ones. Without `--only-new` it rebuilds the full import file. Screening hints are included; for new posts with `language_hint` = english, add a hint to `data/external/language_check.csv` (see `english_hint_not_yet_checked` in the .report.json). AI output is hints only, never labels.
+
+## Demo in Colab (no install; backup for the live app)
+
+Use this when the laptop app will not start, or for a quick live demo from any browser. The local app (`tsektxt-app`, see its `DEMO_DAY.md`) is the main demo; this is the fallback.
+
+1. Open the notebook: [colab_present.ipynb](https://colab.research.google.com/github/hansjio/tsektxt-model-training/blob/master/notebooks/colab_present.ipynb). Close old Colab tabs first. Never "Save a copy in GitHub".
+2. **Runtime > Change runtime type > T4 GPU** (a GPU makes a check take about a second; CPU also works but is slow).
+3. **Runtime > Run all** (about 5 to 10 minutes the first time; the three models are downloaded from Hugging Face, 1 to 2 GB). "Could not find cuda drivers" is TensorFlow noise: ignore it. pip may print dependency warnings: ignore them.
+4. What each part shows: sections 1-6 the method and internal results from `results/*.json`; section 7 the Taglish results (shows "pending" until the labelled set exists); **section 8 live prediction** (five real public news-outlet and COMELEC example posts plus a text box `custom_text` for a post a panelist suggests: paste only real public text); **section 9 Integrated Gradients** for one post; section 10 a summary with the file each number comes from.
+5. Do the run the night before and leave the tab open. If the runtime disconnects, **Runtime > Run all** again.
+
+What to say: this is a research demo, not a fact-checker. Labels follow the source, the three models are single-seed and not ranked (RoBERTa-Tagalog vs XLM-R, McNemar p = 0.55), short posts lean "not credible" because the models were trained on long news articles, and confidence is calibrated on news articles. Screenshots and a recording of the local app are in `tsektxt-app/demo-assets/`.
 
 ## Repository layout
 
@@ -185,6 +199,7 @@ model_cards/               refined Hugging Face model cards
 results/                   metrics, comparison, cleaning report
 tests/                     smoke tests on dummy data only
 notebooks/colab_eval.ipynb  test + Taglish scoring + IG (use this)
+notebooks/colab_present.ipynb demo/defense notebook (read-only, live prediction + IG)
 notebooks/colab_extra.ipynb extra paper results: calibration, IG on an internal sample, error analysis, timing, language ID
 notebooks/colab_train.ipynb retraining only (do not run unless the group decides to retrain)
 ```

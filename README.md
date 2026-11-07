@@ -28,7 +28,7 @@ Combined Fake News Filipino Dataset and Philippine Fake News Corpus, cleaned by 
 | XLM-RoBERTa | 0.9427 | 0.9150 | 0.9258 | 0.9204 | 0.9378 | 0.9428 |
 | TF-IDF + LogReg baseline (first 128 words) | 0.9258 | 0.8739 | 0.9265 | 0.8994 | 0.9204 | 0.9263 |
 
-(NC = not credible, the positive class. Bold = highest weighted F1, the thesis's primary comparison metric.)
+(NC = not credible, the positive class. Bold marks the highest value in a column and is not a ranking: a model counts as better only if its score is higher AND the difference is significant after Holm correction; see McNemar below.)
 
 McNemar's test (α = 0.05):
 
@@ -91,6 +91,32 @@ the raw ones. It is fitted on news articles, so short-post percentages can still
 
 These are diagnostics on the internal set only. Accuracy on the Taglish election posts is pending annotation; it will be reported by
 fixed length bins (under 20 / 20-39 / 40-99 / 100+ words, `src/length_bins.py`).
+
+## Extra results (internal set)
+
+From `notebooks/colab_extra.ipynb` (Colab T4, 2026-11-07). All on the internal formal-news data, single seed, descriptive only; none of it uses the Taglish set.
+
+**Calibration** (`results/calibration_report.json`; T fitted on the validation split, scores on the test split; predictions unchanged):
+
+| Model | T | ECE before -> after | NLL before -> after | Median confidence when wrong before -> after |
+|---|---|---|---|---|
+| RoBERTa-Tagalog | 1.9681 | 0.0398 -> 0.0200 | 0.2153 -> 0.1618 | 0.973 -> 0.861 |
+| mBERT | 1.361 | 0.0265 -> 0.0160 | 0.2117 -> 0.1998 | 0.881 -> 0.814 |
+| XLM-RoBERTa | 1.8441 | 0.0444 -> 0.0165 | 0.2309 -> 0.1711 | 0.984 -> 0.904 |
+
+**Integrated Gradients on a 300-article internal sample** (`results/ig_internal/ig_top_tokens.json`, plus `ig_attributions_<model>.json`, `ig_overlap.json`; 100 steps, tolerance 5%). Completeness check: RoBERTa-Tagalog and mBERT are 100% within the 5% tolerance. XLM-RoBERTa is 97.7% within tolerance (max relative error 5.39, so a few articles fail the check and their attributions are less reliable). Predicted not credible: 109 / 113 / 106 of 300 (RoBERTa-Tagalog / mBERT / XLM-RoBERTa). Top words are descriptive, not causal. Figure: `fig_i_ig_top_words`.
+
+**IG temperature robustness** (`results/ig_temperature_check.json`; 20 test articles per model): IG on logits/T keeps the same top-10 word order and the same prediction for 20 of 20 articles in all three models; the largest relative deviation of attribution x T is 0.0212 (RoBERTa-Tagalog), 0.0056 (mBERT), 0.0005 (XLM-RoBERTa).
+
+**Error analysis** (`results/error_analysis/`): per model, `<model>_examples.csv` holds 24 test-set errors (12 credible called not credible, 12 not credible called credible) with probability, excerpt and IG top words; `<model>/` holds the IG files for those 24 errors.
+
+**Inference time** (`results/inference_time.json`; 100 posts, batch size 1, max length 128, 1 CPU thread, Tesla T4). Median ms (p95), CPU / T4: RoBERTa-Tagalog 313.6 (430.1) / 15.6 (24.3); mBERT 329.1 (454.2) / 12.7 (18.1); XLM-RoBERTa 329.9 (447.7) / 13.4 (19.2). Prediction only: Integrated Gradients time is not included.
+
+**Environment** (`results/environment.json`): Python 3.13.16, torch 2.14.1+cu130, transformers 4.57.6, datasets 4.8.5, scikit-learn 1.6.1, captum 0.9.0, numpy 2.4.6, pandas 2.2.3, scipy 1.16.3, accelerate 1.15.0, tokenizers 0.22.2 (Colab extra-evaluation session).
+
+**Language mix of the 25,352 training articles** (`results/language_id_train.json`; lingua, English vs Tagalog, 30-word chunks, 80% rule): 21,295 English, 2,622 Tagalog, 1,435 mixed. Figure: `fig_l_language_mix`.
+
+Figures are in `results/figures/` (`fig_k_reliability`, `fig_i_ig_top_words`, `fig_l_language_mix`), with the demo screenshots `demo_long_post.jpg` and `demo_short_post.jpg`.
 
 ## Reproduce
 
@@ -173,6 +199,7 @@ The demo app is a separate repo: https://github.com/hansjio/tsektxt-app (runs th
 - [x] Integrated Gradients and Taglish scoring code (tested on dummy data)
 - [ ] Integrated Gradients top-predictor analysis on the labelled Taglish set
 - [x] Diagnostics: length falloff, link check, confidence when wrong (internal set)
+- [x] Colab extra run: calibration, Integrated Gradients on a 300-article internal sample, error analysis, inference time, environment, language ID (`notebooks/colab_extra.ipynb`)
 - [x] Local three-model demo app (separate repo)
 
 ## Limitations

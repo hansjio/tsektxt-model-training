@@ -1,0 +1,143 @@
+{
+  "n_internal_rows": 3803,
+  "n_posts_with_url": 12,
+  "max_length": 128,
+  "seed": 42,
+  "models": {
+    "roberta-tagalog": {
+      "length": {
+        "first_15_words": {
+          "accuracy": 0.6876,
+          "credible_called_not_credible": 0.4537,
+          "not_credible_recall": 0.9412,
+          "mean_p_not_credible": 0.631
+        },
+        "first_30_words": {
+          "accuracy": 0.8328,
+          "credible_called_not_credible": 0.2277,
+          "not_credible_recall": 0.9412,
+          "mean_p_not_credible": 0.4901
+        },
+        "first_60_words": {
+          "accuracy": 0.9245,
+          "credible_called_not_credible": 0.0827,
+          "not_credible_recall": 0.9375,
+          "mean_p_not_credible": 0.3914
+        },
+        "full": {
+          "accuracy": 0.945,
+          "credible_called_not_credible": 0.0516,
+          "not_credible_recall": 0.939,
+          "mean_p_not_credible": 0.3709
+        }
+      },
+      "links": {
+        "internal_test_dummy_link_appended": {
+          "n": 3803,
+          "accuracy_without": 0.945,
+          "accuracy_with": 0.944,
+          "mean_p_nc_change": -0.0017,
+          "flips": 4
+        },
+        "collected_posts_with_url_kept_vs_removed_UNLABELLED": {
+          "n": 12,
+          "mean_p_nc_url_kept": 0.5213,
+          "mean_p_nc_url_removed": 0.5139,
+          "share_not_credible_url_kept": 0.5,
+          "share_not_credible_url_removed": 0.5,
+          "flips": 0
+        }
+      }
+    },
+    "mbert": {
+      "length": {
+        "first_15_words": {
+          "accuracy": 0.7131,
+          "credible_called_not_credible": 0.4091,
+          "not_credible_recall": 0.9324,
+          "mean_p_not_credible": 0.6032
+        },
+        "first_30_words": {
+          "accuracy": 0.8257,
+          "credible_called_not_credible": 0.2305,
+          "not_credible_recall": 0.9265,
+          "mean_p_not_credible": 0.4942
+        },
+        "first_60_words": {
+          "accuracy": 0.9148,
+          "credible_called_not_credible": 0.0938,
+          "not_credible_recall": 0.9302,
+          "mean_p_not_credible": 0.4047
+        },
+        "full": {
+          "accuracy": 0.9301,
+          "credible_called_not_credible": 0.07,
+          "not_credible_recall": 0.9302,
+          "mean_p_not_credible": 0.3912
+        }
+      },
+      "links": {
+        "internal_test_dummy_link_appended": {
+          "n": 3803,
+          "accuracy_without": 0.9301,
+          "accuracy_with": 0.9243,
+          "mean_p_nc_change": -0.0058,
+          "flips": 32
+        },
+        "collected_posts_with_url_kept_vs_removed_UNLABELLED": {
+          "n": 12,
+          "mean_p_nc_url_kept": 0.8327,
+          "mean_p_nc_url_removed": 0.8372,
+          "share_not_credible_url_kept": 0.8333,
+          "share_not_credible_url_removed": 0.8333,
+          "flips": 0
+        }
+      }
+    },
+    "xlmr": {
+      "length": {
+        "first_15_words": {
+          "accuracy": 0.6976,
+          "credible_called_not_credible": 0.439,
+          "not_credible_recall": 0.9427,
+          "mean_p_not_credible": 0.6183
+        },
+        "first_30_words": {
+          "accuracy": 0.8598,
+          "credible_called_not_credible": 0.1765,
+          "not_credible_recall": 0.9251,
+          "mean_p_not_credible": 0.4468
+        },
+        "first_60_words": {
+          "accuracy": 0.9277,
+          "credible_called_not_credible": 0.0692,
+          "not_credible_recall": 0.9221,
+          "mean_p_not_credible": 0.3756
+        },
+        "full": {
+          "accuracy": 0.9427,
+          "credible_called_not_credible": 0.0479,
+          "not_credible_recall": 0.9258,
+          "mean_p_not_credible": 0.3644
+        }
+      },
+      "links": {
+        "internal_test_dummy_link_appended": {
+          "n": 3803,
+          "accuracy_without": 0.9427,
+          "accuracy_with": 0.94,
+          "mean_p_nc_change": -0.0009,
+          "flips": 12
+        },
+        "collected_posts_with_url_kept_vs_removed_UNLABELLED": {
+          "n": 12,
+          "mean_p_nc_url_kept": 0.5143,
+          "mean_p_nc_url_removed": 0.5137,
+          "share_not_credible_url_kept": 0.5,
+          "share_not_credible_url_removed": 0.5,
+          "flips": 0
+        }
+      }
+    }
+  }
+}

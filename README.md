@@ -58,6 +58,34 @@ one training run (one seed).
 come from the publishing site and sign-off lines differ between sites. The internal scores therefore partly reflect source style. The
 informal Taglish election test set is the meaningful test of real-world generalisation and is still pending.
 
+## Diagnostics: short text, links and confidence (internal test set, inference only)
+
+**Accuracy when articles are cut short** (`results/domain_shift.json`, `src/domain_shift_checks.py`; figure `results/figures/fig_e_accuracy_vs_words_kept.png`).
+Each cell: accuracy (share of credible articles wrongly called not credible).
+
+| Model | First 15 words | First 30 words | First 60 words | Full text |
+|---|---|---|---|---|
+| RoBERTa-Tagalog | 0.688 (45.4%) | 0.833 (22.8%) | 0.924 (8.3%) | 0.945 (5.2%) |
+| mBERT | 0.713 (40.9%) | 0.826 (23.1%) | 0.915 (9.4%) | 0.930 (7.0%) |
+| XLM-RoBERTa | 0.698 (43.9%) | 0.860 (17.6%) | 0.928 (6.9%) | 0.943 (4.8%) |
+
+Not-credible recall stays about the same at every length (0.92-0.94), so the whole drop comes from credible text being called
+not credible. The collected 2022 election posts are short (median 34 words after screening, vs 335 for credible and 179 for
+not-credible training articles; `results/length_distribution.json`, figure `fig_f_length_distribution`), so they fall in the range
+where the models are weakest. Adding a link to every test article flipped very few predictions (RoBERTa-Tagalog 4, mBERT 32, XLM-RoBERTa 12 of 3,803), and on 12 collected
+posts that contain a URL, removing it flipped none: links are not a meaningful cue.
+
+**Confidence when wrong** (`results/confidence_check.json`; figure `fig_d_confidence_internal`). Softmax output is not a calibrated probability.
+
+| Model | Errors | Median confidence when wrong | Errors at >= 0.90 | Errors at >= 0.99 |
+|---|---|---|---|---|
+| RoBERTa-Tagalog | 209 | 0.973 | 135 | 80 |
+| mBERT | 266 | 0.882 | 125 | 28 |
+| XLM-RoBERTa | 218 | 0.984 | 161 | 86 |
+
+These are diagnostics on the internal set only. Accuracy on the Taglish election posts is pending annotation; it will be reported by
+fixed length bins (under 20 / 20-39 / 40-99 / 100+ words, `src/length_bins.py`).
+
 ## Reproduce
 
 ```bash
@@ -135,12 +163,12 @@ The demo app is a separate repo: https://github.com/hansjio/tsektxt-app (runs th
 - [ ] Taglish election test set: annotation (Cohen's kappa >= 0.61), evaluation
 - [x] Integrated Gradients and Taglish scoring code (tested on dummy data)
 - [ ] Integrated Gradients top-predictor analysis on the labelled Taglish set
+- [x] Diagnostics: length falloff, link check, confidence when wrong (internal set)
 - [x] Local three-model demo app (separate repo)
 
 ## Limitations
 
 Labels reflect source credibility rather than verified claims; training text is news rather than social media; single seed;
-128-token truncation. The models were trained on long articles, so short social posts are out of domain: in informal
-spot-checks they called most short posts "not credible" with high confidence (see the thesis hub note docs/FINDINGS_DOMAIN_SHIFT.md;
-measured by `src/domain_shift_checks.py`). Model outputs are not fact-checks and should not be used for automated moderation or judgements about
+128-token truncation. The models were trained on long articles and lose accuracy on short text (see Diagnostics above), so short
+social posts are out of domain and tend to be called not credible. Model outputs are not fact-checks and should not be used for automated moderation or judgements about
 individuals or outlets.

@@ -18,4 +18,4 @@ Labels: 1 = credible, 0 = not credible (positive class). Do not read any figure 
 | `fig_i_ig_top_words` | `ig_top_tokens.json` | Integrated Gradients: words with the largest summed attribution toward "not credible", per model. Descriptive, not causal. | Ch. IV, interpretability |
 | `fig_j_confidence_taglish` | `external_confidence_check.json` | As fig. d, on the Taglish set. | Ch. IV, Taglish results |
 
-Status when written: a to d, f and `loss_curves` exist. e, g, h, i, j wait for Colab runs (`domain_shift.json`, Taglish results, IG).
+Status 2026-11-07: a to f and `loss_curves` exist (fig f now uses the cleaned corpus: 25,352 articles, medians 335 / 179; posts n = 640, median 34). g, h, i, j wait for the Taglish results and IG.

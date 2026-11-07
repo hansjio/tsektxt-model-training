@@ -159,35 +159,55 @@ def fig_e():
 
 
 def word_counts():
-    """Counts-only distribution from data/raw (by class) and the collected posts. Writes results/length_distribution.json (no text)."""
-    out = {}
-    raw = ROOT / "data/raw/combined_dataset_clean.csv"
-    if raw.exists():
+    """Counts-only distribution (no text) -> results/length_distribution.json.
+    Training side: data/processed/cleaned.csv if present, else data/raw (labelled 'raw corpus before cleaning').
+    Posts: collected posts minus rows screen_candidates.py marks 'drop' (data/external/candidate_screening.csv by post_id);
+    if that file is missing, texts with at least 5 words (labelled)."""
+    out, meta = {}, {}
+    cleaned, raw = ROOT / "data/processed/cleaned.csv", ROOT / "data/raw/combined_dataset_clean.csv"
+    for path, lab, src_name in [(cleaned, "cleaned corpus", "data/processed/cleaned.csv"), (raw, "raw corpus before cleaning", "data/raw/combined_dataset_clean.csv")]:
+        if not path.exists(): continue
         c = {"0": [], "1": []}
-        for r in csv.DictReader(open(raw, encoding="utf-8-sig", newline="")):
-            if r.get("Label") in c: c[r["Label"]].append(len((r.get("Content") or "").split()))
+        for r in csv.DictReader(open(path, encoding="utf-8-sig", newline="")):
+            lbl = r.get("Label", r.get("label")); txt = r.get("Content", r.get("text")) or ""
+            if lbl in c: c[lbl].append(len(txt.split()))
         out["training_articles"] = {("credible" if k == "1" else "not_credible"): v for k, v in c.items()}
-    post = ROOT / "data/external/merged_for_annotation.csv"
+        meta["training_articles"] = {"label": lab, "source": src_name}; break
+    post, scr = ROOT / "data/external/merged_for_annotation.csv", ROOT / "data/external/candidate_screening.csv"
     if post.exists():
-        out["collected_posts"] = [len((r.get("text") or "").split()) for r in csv.DictReader(open(post, encoding="utf-8-sig", newline="")) if (r.get("text") or "").strip()]
-    old = (load("length_distribution.json") or {}).get("counts", {})  # keep parts whose source files are absent (e.g. on Colab)
-    for k, v in old.items(): out.setdefault(k, v)
+        rows = [r for r in csv.DictReader(open(post, encoding="utf-8-sig", newline="")) if (r.get("text") or "").strip()]
+        if scr.exists():
+            drop = {r["post_id"] for r in csv.DictReader(open(scr, encoding="utf-8-sig", newline="")) if r["screen"] == "drop"}
+            keep = [r for r in rows if r.get("post_id") not in drop]
+            meta["collected_posts"] = {"label": "collected posts after screening (screen_candidates.py drop rows removed)", "n_before": len(rows), "n_after": len(keep)}
+        else:
+            keep = [r for r in rows if len(r["text"].split()) >= 5]
+            meta["collected_posts"] = {"label": "collected posts with at least 5 words (screening file missing)", "n_before": len(rows), "n_after": len(keep)}
+        out["collected_posts"] = [len(r["text"].split()) for r in keep]
+    old = load("length_distribution.json") or {}  # keep parts whose source files are absent (e.g. on Colab)
+    for k, v in old.get("counts", {}).items():
+        if k not in out: out[k] = v; meta[k] = old.get("meta", {}).get(k, {})
     if not out: return None
-    res = {"note": "word counts (whitespace split) only, no text", "counts": out}
-    (RES / "length_distribution.json").write_text(json.dumps(res), encoding="utf-8")
+    (RES / "length_distribution.json").write_text(json.dumps({"note": "word counts (whitespace split) only, no text", "meta": meta, "counts": out}), encoding="utf-8")
     return out
 
 
 def fig_f():
     d = word_counts() or (load("length_distribution.json") or {}).get("counts")
     if not d: return skip("fig_f_length_distribution", "data/raw or merged_for_annotation.csv, or results/length_distribution.json")
-    bins = np.logspace(0, np.log10(5000), 40); fig, ax = plt.subplots(figsize=(W * .9, 3.3))
-    for key, lab, c, ls in [("credible", "training articles, credible", C_BLUE, "-"), ("not_credible", "training articles, not credible", C_RED, "-")]:
+    meta = (load("length_distribution.json") or {}).get("meta", {})
+    tl = (meta.get("training_articles") or {}).get("label", "training articles")
+    pl = (meta.get("collected_posts") or {}).get("label", "collected posts")
+    bins = np.logspace(0, np.log10(5000), 36); fig, ax = plt.subplots(figsize=(W * .9, 3.5))
+    def share(v): v = np.clip(np.maximum(v, 1), 1, 5000); return dict(x=v, bins=bins, weights=np.full(len(v), 1 / len(v)))
+    for key, lab, c in [("credible", "credible", C_BLUE), ("not_credible", "not credible", C_RED)]:
         v = (d.get("training_articles") or {}).get(key)
-        if v: ax.hist(np.clip(np.maximum(v, 1), 1, 5000), bins=bins, density=True, histtype="step", lw=1.6, color=c, ls=ls, label=f"{lab} (n={len(v)}, median {int(np.median(v))})")
+        if v: ax.hist(**share(v), histtype="step", lw=1.6, color=c, label=f"training, {lab} (n={len(v)}, median {int(np.median(v))})")
     p = d.get("collected_posts")
-    if p: ax.hist(np.clip(np.maximum(p, 1), 1, 5000), bins=bins, density=True, histtype="stepfilled", alpha=.45, color=C_GREY, edgecolor="black", label=f"collected posts (n={len(p)}, median {int(np.median(p))})")
-    ax.set_xscale("log"); ax.set_xlabel("words per text (log scale)"); ax.set_ylabel("density"); ax.legend(fontsize=7); ax.set_title("Text length: training articles vs collected posts")
+    if p: ax.hist(**share(p), histtype="stepfilled", alpha=.45, color=C_GREY, edgecolor="black", label=f"collected posts (n={len(p)}, median {int(np.median(p))})")
+    ax.set_xscale("log"); ax.set_xlabel("words per text (log scale)"); ax.set_ylabel("share of texts per bin"); ax.set_ylim(0, ax.get_ylim()[1] * 1.35)
+    ax.legend(fontsize=7, loc="upper right"); ax.set_title("Text length: training articles vs collected posts")
+    fig.text(.5, -.02, f"Each group sums to 1. Training: {tl}. Posts: {pl}.", ha="center", va="top", fontsize=6.5, wrap=True)
     fig.tight_layout(); save(fig, "fig_f_length_distribution")
 
 
